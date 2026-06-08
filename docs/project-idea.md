@@ -663,7 +663,7 @@ Key principles:
 
 These questions are intentionally left open.
 
-- What is the best first music model to use?
+- What is the best first music model to use? [Research](research-modules.md)
 - Should the first versions be local, browser-based, or hybrid?
 - What is the smallest viable phrase priming workflow?
 - How much musical understanding is enough for a useful experience?
