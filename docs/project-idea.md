@@ -499,17 +499,18 @@ These milestones are intentionally broad and flexible.
 
 They are here to guide the project, not to lock it down.
 
-### Milestone 1 — Raw jam test
+### Milestone 1 — Core interaction dry run
 
-Test the simplest possible version of the idea.
+Test the simplest possible version of the session architecture before adding real audio, webcam gestures, or a specific music model.
 
-- play guitar
-- let the model generate at the same time
-- do not add too much structure yet
+- start a session
+- enter simple phrase context manually during the priming pass
+- trigger a control action to start the jam pass
+- let a fake companion respond to the current session state
 
 Success looks like:
 
-> The experience feels musically interesting enough to continue.
+> The priming-to-jam interaction is understandable and feels like the right backbone for later musical prototypes.
 
 ### Milestone 2 — Manual steering
 
@@ -616,11 +617,12 @@ Success looks like:
 
 ## Rough demo ideas
 
-### Demo 1 — Raw jam
+### Demo 1 — Core interaction dry run
 
-- play guitar
-- companion plays at the same time
-- show whether the interaction feels interesting
+- start a session
+- enter phrase context manually
+- trigger the control action that starts the jam pass
+- show a fake companion response
 
 ### Demo 2 — Gesture companion
 
@@ -680,10 +682,10 @@ These questions are intentionally left open.
 - initialize the repo
 - create `docs/project-idea.md`
 - keep `README.md` short
-- test a raw jam manually
-- write quick notes on whether it feels musically interesting
-- prototype simple head tracking
-- prototype one gesture mapped to one action
+- implement the core interaction dry run
+- write quick notes on whether the priming-to-jam backbone feels right
+- prototype one manual control action mapped to one session transition
+- defer simple head tracking until the session transition is clear
 - sketch a two-screen UI
 - keep all early choices easy to revise
 

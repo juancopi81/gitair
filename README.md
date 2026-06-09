@@ -130,13 +130,17 @@ The first goal is to create something small, musical, hackable, and alive.
 
 These are flexible and may change as the project evolves.
 
-### 1. Raw jam test
+### 1. Core interaction dry run
 
-Play guitar while a real-time model generates music.
+Start with the smallest executable version of the session flow:
+
+- enter simple phrase context manually during a priming pass
+- trigger a control action to start the jam pass
+- let a fake companion respond to the current session state
 
 Success:
 
-> The experience feels interesting enough to continue.
+> The core priming-to-jam interaction is understandable before adding real audio, webcam gestures, or a specific music model.
 
 ### 2. Manual steering
 
