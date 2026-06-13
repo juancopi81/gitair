@@ -4,7 +4,7 @@ Fake companion implementation for Gitair.
 This is a simple implementation of a companion that can be used for testing and development.
 """
 
-from gitair.core.session_snapshot import SessionSnapshot
+from gitair.core.session_snapshot import SessionPhase, SessionSnapshot
 
 
 class FakeCompanion:
@@ -12,6 +12,9 @@ class FakeCompanion:
 
     def respond(self, snapshot: SessionSnapshot) -> str:
         """Produce a fake companion response from a session snapshot."""
+        if snapshot.phase != SessionPhase.JAM_PASS:
+            raise ValueError("Cannot ask companion to respond before jam pass.")
+
         if snapshot.phrase_context is None:
             raise ValueError("Cannot respond without phrase context.")
 

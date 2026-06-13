@@ -1,6 +1,6 @@
 # Session Core
 
-This document briefly explains the session core introduced for [issue 1](https://github.com/juancopi81/gitair/issues/1) and the manually steerable dry run added for [issue 2](https://github.com/juancopi81/gitair/issues/2).
+This document briefly explains the session core introduced for [issue 1](https://github.com/juancopi81/gitair/issues/1), the manually steerable dry run added for [issue 2](https://github.com/juancopi81/gitair/issues/2), and the strict invalid-operation guards added for [issue 3](https://github.com/juancopi81/gitair/issues/3).
 
 The goal of this first slice is not to build real audio, webcam input, live visuals, or a real music model integration yet. The goal is to make the first Gitair core path explicit enough that I can explain it from memory before delegating broader work to agents.
 
@@ -41,6 +41,15 @@ Session starts
   → moves to JAM_PASS
   → FakeCompanion responds from SessionSnapshot
 ```
+
+For Milestone 1, invalid session operations fail with explicit errors instead of silently doing nothing. This keeps the core strict while the input surfaces are still manual and easy to inspect.
+
+Current invalid operations include:
+
+- starting the jam pass without phrase context
+- starting the jam pass again after the session is already in `JAM_PASS`
+- asking the companion to respond before `JAM_PASS`
+- asking the companion to respond without phrase context
 
 ## Core concepts
 

@@ -24,14 +24,18 @@ class Session:
     def apply_control_action(self, control_action: ControlAction) -> None:
         """Apply a control action to the session."""
         if control_action.action == ControlActionType.START_JAM_PASS:
-            if not self._snapshot.phrase_context:
-                raise ValueError("Cannot start jam pass without phrase context")
             self._start_jam_pass()
         else:
             raise ValueError(f"Unknown control action: {control_action}")
 
     def _start_jam_pass(self) -> None:
         """Move the session into the jam pass."""
+        if self._snapshot.phase == SessionPhase.JAM_PASS:
+            raise ValueError("Cannot start jam pass because the session is already in jam pass.")
+
+        if self._snapshot.phrase_context is None:
+            raise ValueError("Cannot start jam pass without phrase context.")
+
         self._snapshot.phase = SessionPhase.JAM_PASS
 
     def get_snapshot(self) -> SessionSnapshot:

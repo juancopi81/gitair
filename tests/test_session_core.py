@@ -1,8 +1,10 @@
+import pytest
+
 from gitair.companions.fake import FakeCompanion
 from gitair.core.control_action import ControlAction, ControlActionType
 from gitair.core.phrase_context import PhraseContext
 from gitair.core.session import Session
-from gitair.core.session_snapshot import SessionPhase
+from gitair.core.session_snapshot import SessionPhase, SessionSnapshot
 from gitair.demos.dry_run_session import (
     parse_chords,
     run_session_core_dry_run,
@@ -44,6 +46,55 @@ def test_session_moves_from_priming_to_jam_and_fake_companion_responds() -> None
     assert "Ab | C | D7" in response_text
     assert "Colombian folk" in response_text
     assert "Guitar playing bambuco" in response_text
+
+
+def test_starting_jam_without_phrase_context_fails_clearly() -> None:
+    session = Session()
+    start_jam_action = ControlAction(action=ControlActionType.START_JAM_PASS)
+
+    with pytest.raises(ValueError, match="without phrase context"):
+        session.apply_control_action(control_action=start_jam_action)
+
+
+def test_starting_jam_twice_fails_clearly() -> None:
+    session = Session()
+    phrase_context = PhraseContext(
+        chords=["Dm7", "G7", "Cmaj7"],
+        tempo_bpm=96.0,
+        style_description="quiet bossa nova",
+        prompt_summary="soft syncopated guitar phrase",
+    )
+    start_jam_action = ControlAction(action=ControlActionType.START_JAM_PASS)
+
+    session.receive_phrase_context(phrase_context=phrase_context)
+    session.apply_control_action(control_action=start_jam_action)
+
+    with pytest.raises(ValueError, match="already in jam pass"):
+        session.apply_control_action(control_action=start_jam_action)
+
+
+def test_companion_response_before_jam_fails_clearly() -> None:
+    session = Session()
+    fake_companion = FakeCompanion()
+    phrase_context = PhraseContext(
+        chords=["Dm7", "G7", "Cmaj7"],
+        tempo_bpm=96.0,
+        style_description="quiet bossa nova",
+        prompt_summary="soft syncopated guitar phrase",
+    )
+
+    session.receive_phrase_context(phrase_context=phrase_context)
+
+    with pytest.raises(ValueError, match="before jam pass"):
+        fake_companion.respond(snapshot=session.get_snapshot())
+
+
+def test_companion_response_without_phrase_context_fails_clearly() -> None:
+    fake_companion = FakeCompanion()
+    jam_snapshot_without_context = SessionSnapshot(phase=SessionPhase.JAM_PASS)
+
+    with pytest.raises(ValueError, match="without phrase context"):
+        fake_companion.respond(snapshot=jam_snapshot_without_context)
 
 
 def test_parse_chords_strips_empty_comma_separated_values() -> None:
