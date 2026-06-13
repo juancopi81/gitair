@@ -3,6 +3,10 @@ from gitair.core.control_action import ControlAction, ControlActionType
 from gitair.core.phrase_context import PhraseContext
 from gitair.core.session import Session
 from gitair.core.session_snapshot import SessionPhase
+from gitair.demos.dry_run_session import (
+    parse_chords,
+    run_session_core_dry_run,
+)
 
 
 def test_session_moves_from_priming_to_jam_and_fake_companion_responds() -> None:
@@ -40,3 +44,29 @@ def test_session_moves_from_priming_to_jam_and_fake_companion_responds() -> None
     assert "Ab | C | D7" in response_text
     assert "Colombian folk" in response_text
     assert "Guitar playing bambuco" in response_text
+
+
+def test_parse_chords_strips_empty_comma_separated_values() -> None:
+    assert parse_chords(" Dm7, G7, , Cmaj7 ") == ["Dm7", "G7", "Cmaj7"]
+
+
+def test_manual_dry_run_uses_supplied_phrase_context(capsys) -> None:
+    phrase_context = PhraseContext(
+        chords=["Dm7", "G7", "Cmaj7"],
+        tempo_bpm=96.0,
+        style_description="quiet bossa nova",
+        prompt_summary="soft syncopated guitar phrase",
+    )
+
+    run_session_core_dry_run(
+        phrase_context=phrase_context,
+        wait_for_manual_action=False,
+    )
+
+    output = capsys.readouterr().out
+
+    assert "Applying Control Action: START_JAM_PASS" in output
+    assert "Dm7 | G7 | Cmaj7" in output
+    assert "96.0 BPM" in output
+    assert "quiet bossa nova" in output
+    assert "soft syncopated guitar phrase" in output

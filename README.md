@@ -142,6 +142,12 @@ Success:
 
 > The core priming-to-jam interaction is understandable before adding real audio, webcam gestures, or a specific music model.
 
+Try the current dry run:
+
+```bash
+.venv/bin/python -m gitair.demos.dry_run_session --chords "Dm7,G7,Cmaj7" --tempo-bpm 96 --style-description "quiet bossa nova" --prompt-summary "soft syncopated guitar phrase"
+```
+
 ### 2. Manual steering
 
 Explore simple ways to steer the model manually:

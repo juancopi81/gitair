@@ -1,6 +1,6 @@
 # Session Core
 
-This document briefly explains the code introduced for [issue 1](https://github.com/juancopi81/gitair/issues/1).
+This document briefly explains the session core introduced for [issue 1](https://github.com/juancopi81/gitair/issues/1) and the manually steerable dry run added for [issue 2](https://github.com/juancopi81/gitair/issues/2).
 
 The goal of this first slice is not to build real audio, webcam input, live visuals, or a real music model integration yet. The goal is to make the first Gitair core path explicit enough that I can explain it from memory before delegating broader work to agents.
 
@@ -112,7 +112,7 @@ Other companions later
 
 The dry run demonstrates the first executable Gitair core path without real audio, webcam input, visuals, or a specific music model.
 
-The dry run should show:
+The manually steerable dry run should show:
 
 1. the initial session snapshot
 2. a phrase context being received
@@ -125,6 +125,14 @@ This proves the first tracer bullet:
 ```text
 Priming Pass → Phrase Context → Control Action → Jam Pass → Companion Response
 ```
+
+Run it with your own phrase context:
+
+```bash
+.venv/bin/python -m gitair.demos.dry_run_session --chords "Dm7,G7,Cmaj7" --tempo-bpm 96 --style-description "quiet bossa nova" --prompt-summary "soft syncopated guitar phrase"
+```
+
+The command waits for Enter before it applies `START_JAM_PASS`. For non-interactive checks, add `--auto-start-jam`.
 
 ## What this slice intentionally does not include
 
