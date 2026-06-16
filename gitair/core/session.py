@@ -7,6 +7,7 @@ context.
 """
 
 from gitair.core.control_action import ControlAction, ControlActionType
+from gitair.core.errors import InvalidSessionTransition, UnsupportedControlAction
 from gitair.core.phrase_context import PhraseContext
 from gitair.core.session_snapshot import SessionPhase, SessionSnapshot
 
@@ -26,15 +27,17 @@ class Session:
         if control_action.action == ControlActionType.START_JAM_PASS:
             self._start_jam_pass()
         else:
-            raise ValueError(f"Unknown control action: {control_action}")
+            raise UnsupportedControlAction(f"Unknown control action: {control_action}")
 
     def _start_jam_pass(self) -> None:
         """Move the session into the jam pass."""
         if self._snapshot.phase == SessionPhase.JAM_PASS:
-            raise ValueError("Cannot start jam pass because the session is already in jam pass.")
+            raise InvalidSessionTransition(
+                "Cannot start jam pass because the session is already in jam pass.",
+            )
 
         if self._snapshot.phrase_context is None:
-            raise ValueError("Cannot start jam pass without phrase context.")
+            raise InvalidSessionTransition("Cannot start jam pass without phrase context.")
 
         self._snapshot.phase = SessionPhase.JAM_PASS
 

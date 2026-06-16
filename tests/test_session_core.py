@@ -2,6 +2,7 @@ import pytest
 
 from gitair.companions.fake import FakeCompanion
 from gitair.core.control_action import ControlAction, ControlActionType
+from gitair.core.errors import CompanionNotReady, InvalidSessionTransition
 from gitair.core.phrase_context import PhraseContext
 from gitair.core.session import Session
 from gitair.core.session_snapshot import SessionPhase, SessionSnapshot
@@ -52,7 +53,7 @@ def test_starting_jam_without_phrase_context_fails_clearly() -> None:
     session = Session()
     start_jam_action = ControlAction(action=ControlActionType.START_JAM_PASS)
 
-    with pytest.raises(ValueError, match="without phrase context"):
+    with pytest.raises(InvalidSessionTransition, match="without phrase context"):
         session.apply_control_action(control_action=start_jam_action)
 
 
@@ -69,7 +70,7 @@ def test_starting_jam_twice_fails_clearly() -> None:
     session.receive_phrase_context(phrase_context=phrase_context)
     session.apply_control_action(control_action=start_jam_action)
 
-    with pytest.raises(ValueError, match="already in jam pass"):
+    with pytest.raises(InvalidSessionTransition, match="already in jam pass"):
         session.apply_control_action(control_action=start_jam_action)
 
 
@@ -85,7 +86,7 @@ def test_companion_response_before_jam_fails_clearly() -> None:
 
     session.receive_phrase_context(phrase_context=phrase_context)
 
-    with pytest.raises(ValueError, match="before jam pass"):
+    with pytest.raises(CompanionNotReady, match="before jam pass"):
         fake_companion.respond(snapshot=session.get_snapshot())
 
 
@@ -93,7 +94,7 @@ def test_companion_response_without_phrase_context_fails_clearly() -> None:
     fake_companion = FakeCompanion()
     jam_snapshot_without_context = SessionSnapshot(phase=SessionPhase.JAM_PASS)
 
-    with pytest.raises(ValueError, match="without phrase context"):
+    with pytest.raises(CompanionNotReady, match="without phrase context"):
         fake_companion.respond(snapshot=jam_snapshot_without_context)
 
 

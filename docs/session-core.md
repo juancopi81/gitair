@@ -51,6 +51,12 @@ Current invalid operations include:
 - asking the companion to respond before `JAM_PASS`
 - asking the companion to respond without phrase context
 
+The current custom errors are intentionally small:
+
+- `InvalidSessionTransition` for invalid session state changes
+- `UnsupportedControlAction` for unsupported session actions
+- `CompanionNotReady` for companion responses requested from an invalid snapshot
+
 ## Core concepts
 
 ### `PhraseContext`
@@ -138,7 +144,7 @@ Priming Pass → Phrase Context → Control Action → Jam Pass → Companion Re
 Run it with your own phrase context:
 
 ```bash
-.venv/bin/python -m gitair.demos.dry_run_session --chords "Dm7,G7,Cmaj7" --tempo-bpm 96 --style-description "quiet bossa nova" --prompt-summary "soft syncopated guitar phrase"
+uv run python -m gitair.demos.dry_run_session --chords "Dm7,G7,Cmaj7" --tempo-bpm 96 --style-description "quiet bossa nova" --prompt-summary "soft syncopated guitar phrase"
 ```
 
 The command waits for Enter before it applies `START_JAM_PASS`. For non-interactive checks, add `--auto-start-jam`.

@@ -51,3 +51,10 @@ Agents can safely implement narrow pieces once the owner-owned decisions above a
 ### Validation
 
 Milestone 1 is done when tests prove the priming-to-jam transition and a local demo shows the fake companion responding to manually entered phrase context.
+
+Standard checks:
+
+```bash
+uv run pytest
+uv run python -m gitair.demos.dry_run_session --chords "E7,G5,A" --tempo-bpm 120 --auto-start-jam
+```

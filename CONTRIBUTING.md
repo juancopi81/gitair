@@ -2,6 +2,22 @@
 
 Gitair is early and experimental. Prefer small, understandable changes that keep the main architecture, domain language, and milestone behavior easy for the project owner to review.
 
+## Local checks
+
+Use `uv` for the standard local workflow:
+
+```bash
+uv run pytest
+uv run ruff check .
+uv run ruff format --check .
+```
+
+For the current Milestone 1 dry run:
+
+```bash
+uv run python -m gitair.demos.dry_run_session --chords "E7,G5,A" --tempo-bpm 120 --auto-start-jam
+```
+
 ## Commit messages
 
 Use Conventional Commit-style prefixes:
