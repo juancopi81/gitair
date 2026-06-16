@@ -58,3 +58,64 @@ Standard checks:
 uv run pytest
 uv run python -m gitair.demos.dry_run_session --chords "E7,G5,A" --tempo-bpm 120 --auto-start-jam
 ```
+
+## Milestone 2 — Manual companion steering
+
+### Purpose
+
+Define the first musician-facing control vocabulary for steering the companion during a session, before adding webcam gesture detection or a real companion backend.
+
+Milestone 2 should keep input sources manual and explicit. The goal is to decide what the performer can ask the companion to do, how the session and companion state change, and how the fake companion reveals those changes.
+
+### Expected behavior
+
+1. A user starts with the existing priming-to-jam dry run.
+2. The user applies `BRING_COMPANION_IN` as the musician-facing action that brings the companion into the performance.
+3. If the session is in the priming pass, `BRING_COMPANION_IN` moves the session into the jam pass and activates the companion.
+4. If the session is already in the jam pass and the companion is silent, `BRING_COMPANION_IN` activates the companion again using the existing phrase context.
+5. The user can apply `SILENCE_COMPANION` while in the jam pass to make the companion silent without losing the phrase context.
+6. The user can apply `INCREASE_INTENSITY` and `DECREASE_INTENSITY` while in the jam pass to adjust companion prominence.
+7. The fake companion response reflects companion state clearly enough for the owner to inspect.
+
+### First control actions
+
+- `BRING_COMPANION_IN`
+- `SILENCE_COMPANION`
+- `INCREASE_INTENSITY`
+- `DECREASE_INTENSITY`
+
+`START_JAM_PASS` is implementation-shaped language from Milestone 1. Milestone 2 should reframe that entry point as `BRING_COMPANION_IN` because the musician's cue is to bring the companion into the performance.
+
+### User-owned decisions
+
+The project owner should understand and approve these before agents expand the code:
+
+- the first musician-facing `Control Action` vocabulary
+- the shape of `Companion State`
+- whether `BRING_COMPANION_IN` should replace or wrap `START_JAM_PASS`
+- how intensity is represented for now
+- which invalid steering operations should raise explicit errors
+
+### Delegable work
+
+Agents can safely implement narrow pieces once the owner-owned decisions above are clear:
+
+- update the control action enum and session state model
+- add a small companion state object or field
+- update the manual CLI to accept the new actions
+- update fake companion output
+- add focused tests for state transitions and invalid steering operations
+- refresh owner-facing docs
+
+### Out of scope
+
+- real webcam or gesture detection
+- choosing physical gesture mappings
+- real-time guitar audio processing
+- MRT2 or other live model integration
+- automatic chord recognition
+- live visual interface work
+
+### Validation
+
+Milestone 2 is done when tests prove manual companion steering and the local dry run demonstrates bringing the companion in, silencing it, bringing it back, and changing intensity without replacing the existing phrase context.

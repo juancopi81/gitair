@@ -24,6 +24,10 @@ _Avoid_: Recording, sample, training data, memory
 The AI-driven musical counterpart that joins the musician during a jam pass and is steered by session settings, control actions, and phrase context.
 _Avoid_: Model, bandmate, bot, generator
 
+**Companion State**:
+The current musical availability and steering posture of the companion within a session, including whether it is active or silent and how intense its contribution should be.
+_Avoid_: Model state, backend status
+
 **Gesture**:
 A physical movement by the musician that Gitair may interpret as a control signal, such as a head turn, nod, or hand cue.
 _Avoid_: Command, shortcut, action
