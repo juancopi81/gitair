@@ -84,16 +84,31 @@ Milestone 2 should keep input sources manual and explicit. The goal is to decide
 - `INCREASE_INTENSITY`
 - `DECREASE_INTENSITY`
 
-`START_JAM_PASS` is implementation-shaped language from Milestone 1. Milestone 2 should reframe that entry point as `BRING_COMPANION_IN` because the musician's cue is to bring the companion into the performance.
+`START_JAM_PASS` is implementation-shaped language from Milestone 1. Milestone 2 replaces it with `BRING_COMPANION_IN` because the musician's cue is to bring the companion into the performance. The repo is still early, so no internal compatibility action or public alias is needed.
+
+### First companion state
+
+The first `Companion State` shape is:
+
+- `status`: `active` or `silent`
+- `intensity`: integer from `1` to `5`
+- default when the companion first enters: `status=active`, `intensity=3`
+
+`SILENCE_COMPANION` changes `status` to `silent` without replacing `Phrase Context`.
+`BRING_COMPANION_IN` changes `status` to `active`.
+`INCREASE_INTENSITY` and `DECREASE_INTENSITY` adjust `intensity` by one step and clamp at `1` and `5`.
+
+For Milestone 2, `intensity` is a discrete target level in the session contract.
+Smooth crescendos or decrescendos are companion rendering behavior and can be added later without changing the first state shape.
 
 ### User-owned decisions
 
 The project owner should understand and approve these before agents expand the code:
 
 - the first musician-facing `Control Action` vocabulary
-- the shape of `Companion State`
-- whether `BRING_COMPANION_IN` should replace or wrap `START_JAM_PASS`
-- how intensity is represented for now
+- the shape of `Companion State`: active or silent, intensity `1` to `5`, default `3`
+- replacing `START_JAM_PASS` with `BRING_COMPANION_IN` instead of keeping compatibility aliases
+- how smooth intensity transitions should be expressed later
 - which invalid steering operations should raise explicit errors
 
 ### Delegable work
