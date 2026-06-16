@@ -5,8 +5,9 @@ This demonstrates the first owner-reviewed flow:
 
 1. A Session starts in the priming pass.
 2. The Session receives phrase context.
-3. A START_JAM_PASS control action moves the Session into the jam pass.
-4. A FakeCompanion responds from the resulting session snapshot.
+3. BRING_COMPANION_IN moves the Session into the jam pass.
+4. Additional control actions steer companion state.
+5. A FakeCompanion responds from the resulting session snapshot.
 """
 
 import argparse
@@ -44,6 +45,11 @@ def print_snapshot(label: str, snapshot: SessionSnapshot) -> None:
     """Print a small human-readable view of a session snapshot."""
     print(f"\n{label}")
     print(f"  phase: {snapshot.phase.value}")
+    if snapshot.companion_state is None:
+        print("  companion_state: none")
+    else:
+        print(f"  companion_status: {snapshot.companion_state.status.value}")
+        print(f"  companion_intensity: {snapshot.companion_state.intensity}")
 
     if snapshot.phrase_context is None:
         print("  phrase_context: none")
@@ -58,16 +64,41 @@ def print_snapshot(label: str, snapshot: SessionSnapshot) -> None:
     print(f"  prompt_summary: {phrase_context.prompt_summary}")
 
 
-def wait_for_start_jam_action(input_fn: Callable[[str], str] = input) -> ControlAction:
-    """Wait for the manual control action that starts the jam pass."""
-    input_fn("\nPress Enter to apply Control Action: START_JAM_PASS")
-    return ControlAction(action=ControlActionType.START_JAM_PASS)
+def wait_for_control_action(
+    action: ControlActionType,
+    input_fn: Callable[[str], str] = input,
+) -> ControlAction:
+    """Wait for a manual control action."""
+    input_fn(f"\nPress Enter to apply Control Action: {action.name}")
+    return ControlAction(action=action)
+
+
+def default_demo_actions() -> list[ControlActionType]:
+    """Return the default manual steering sequence for the dry run."""
+    return [
+        ControlActionType.BRING_COMPANION_IN,
+        ControlActionType.SILENCE_COMPANION,
+        ControlActionType.BRING_COMPANION_IN,
+        ControlActionType.INCREASE_INTENSITY,
+        ControlActionType.INCREASE_INTENSITY,
+        ControlActionType.INCREASE_INTENSITY,
+        ControlActionType.DECREASE_INTENSITY,
+    ]
+
+
+def print_companion_response(companion: FakeCompanion, snapshot: SessionSnapshot) -> None:
+    """Print the fake companion response for an active or silent companion."""
+    companion_response = companion.respond(snapshot=snapshot)
+
+    print("\nCompanion response")
+    print(f"  {companion_response}")
 
 
 def run_session_core_dry_run(
     phrase_context: PhraseContext | None = None,
     *,
     wait_for_manual_action: bool = True,
+    control_actions: Sequence[ControlActionType] | None = None,
     input_fn: Callable[[str], str] = input,
 ) -> None:
     """Run the first Gitair session core path without real audio or models."""
@@ -83,21 +114,21 @@ def run_session_core_dry_run(
     session.receive_phrase_context(phrase_context=phrase_context)
     print_snapshot("Primed snapshot", session.get_snapshot())
 
-    if wait_for_manual_action:
-        start_jam_action = wait_for_start_jam_action(input_fn=input_fn)
-    else:
-        print("\nApplying Control Action: START_JAM_PASS")
-        start_jam_action = ControlAction(action=ControlActionType.START_JAM_PASS)
+    actions = list(control_actions) if control_actions is not None else default_demo_actions()
 
-    session.apply_control_action(control_action=start_jam_action)
+    for action in actions:
+        if wait_for_manual_action:
+            control_action = wait_for_control_action(action=action, input_fn=input_fn)
+        else:
+            print(f"\nApplying Control Action: {action.name}")
+            control_action = ControlAction(action=action)
 
-    jam_snapshot = session.get_snapshot()
-    print_snapshot("Jam snapshot", jam_snapshot)
+        session.apply_control_action(control_action=control_action)
+        snapshot = session.get_snapshot()
+        print_snapshot(f"Snapshot after {action.name}", snapshot)
 
-    companion_response = companion.respond(snapshot=jam_snapshot)
-
-    print("\nCompanion response")
-    print(f"  {companion_response}")
+        if snapshot.companion_state is not None:
+            print_companion_response(companion=companion, snapshot=snapshot)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -127,9 +158,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="Short prompt summary used to steer the fake companion.",
     )
     parser.add_argument(
-        "--auto-start-jam",
+        "--auto-demo-steering",
         action="store_true",
-        help="Apply START_JAM_PASS without waiting for Enter.",
+        help="Apply the default companion-steering sequence without waiting for Enter.",
     )
     return parser
 
@@ -150,7 +181,7 @@ def main() -> None:
     args = parser.parse_args()
     run_session_core_dry_run(
         phrase_context=phrase_context_from_args(args),
-        wait_for_manual_action=not args.auto_start_jam,
+        wait_for_manual_action=not args.auto_demo_steering,
     )
 
 

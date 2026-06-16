@@ -1,55 +1,71 @@
 # Session Core
 
-This document briefly explains the session core introduced for [issue 1](https://github.com/juancopi81/gitair/issues/1), the manually steerable dry run added for [issue 2](https://github.com/juancopi81/gitair/issues/2), and the strict invalid-operation guards added for [issue 3](https://github.com/juancopi81/gitair/issues/3).
+This document explains the current Gitair session core: the Milestone 1
+priming-to-jam tracer bullet plus the Milestone 2 manual companion steering
+contract.
 
-The goal of this first slice is not to build real audio, webcam input, live visuals, or a real music model integration yet. The goal is to make the first Gitair core path explicit enough that I can explain it from memory before delegating broader work to agents.
+The goal is still not to build real audio, webcam input, live visuals, or a
+real music model integration yet. The goal is to keep the main Gitair
+abstraction explicit enough that the project owner can explain it before
+delegating broader work to agents.
 
 ## Layout
 
-This first slice introduces the initial project layout:
+The current layout is intentionally small:
 
-- `gitair/`: the main Python package.
 - `gitair/core/`: the core session logic and data models.
-- `gitair/companions/`: companion implementations. For now, this only includes a fake companion.
-- `gitair/demos/`: small executable demos that assemble the components together.
-- `tests/`: focused tests for the current Gitair behavior.
+- `gitair/companions/`: companion implementations. For now, this only includes
+  a fake companion.
+- `gitair/demos/`: executable demos that assemble the components together.
+- `tests/`: focused tests for the current behavior.
 
-The layout is intentionally small. More folders should only be added when the project earns them through working demos.
+More folders should only be added when the project earns them through working
+demos.
 
 ## Session
 
-A `Session` is the core object of this first Gitair slice.
+A `Session` is a bounded Gitair run.
 
-Right now, it is very simple and follows this workflow:
+It follows this workflow:
 
-1. A `Session` starts in `PRIMING_PASS` by default.
+1. A `Session` starts in `PRIMING_PASS`.
 2. During the priming pass, the guitarist plays first.
-3. At some point, the session receives a `PhraseContext`.
-4. The `PhraseContext` represents musical context from the priming pass, such as chords, tempo, style, and prompt summary.
-5. Once the session has phrase context, it can receive a `ControlAction`.
-6. Right now, the only supported control action is `START_JAM_PASS`.
-7. `START_JAM_PASS` moves the session from `PRIMING_PASS` to `JAM_PASS`.
+3. The session receives a `PhraseContext`.
+4. `PhraseContext` represents musical context such as chords, tempo, style, and
+   prompt summary.
+5. The user applies `BRING_COMPANION_IN`.
+6. If the session is in `PRIMING_PASS`, that action requires phrase context,
+   moves the session into `JAM_PASS`, and creates active companion state.
+7. While in `JAM_PASS`, the user can silence, reintroduce, or adjust the
+   companion.
 8. A companion receives a `SessionSnapshot` and responds from it.
 
 In short:
 
 ```text
 Session starts
-  → PRIMING_PASS
-  → receives PhraseContext
-  → receives START_JAM_PASS
-  → moves to JAM_PASS
-  → FakeCompanion responds from SessionSnapshot
+  -> PRIMING_PASS
+  -> receives PhraseContext
+  -> receives BRING_COMPANION_IN
+  -> moves to JAM_PASS
+  -> creates CompanionState(active, intensity 3)
+  -> FakeCompanion responds from SessionSnapshot
 ```
 
-For Milestone 1, invalid session operations fail with explicit errors instead of silently doing nothing. This keeps the core strict while the input surfaces are still manual and easy to inspect.
+Invalid session operations fail with explicit errors instead of silently doing
+nothing. The deliberate exception is intensity clamping: asking for more
+intensity at `5` or less intensity at `1` is valid steering at a boundary.
 
 Current invalid operations include:
 
-- starting the jam pass without phrase context
-- starting the jam pass again after the session is already in `JAM_PASS`
+- bringing the companion in without phrase context
+- bringing the companion in again while it is already active
+- silencing the companion before `JAM_PASS`
+- silencing the companion when it is already silent
+- changing intensity before `JAM_PASS`
 - asking the companion to respond before `JAM_PASS`
 - asking the companion to respond without phrase context
+- asking the companion to respond without companion state
 
 The current custom errors are intentionally small:
 
@@ -57,13 +73,13 @@ The current custom errors are intentionally small:
 - `UnsupportedControlAction` for unsupported session actions
 - `CompanionNotReady` for companion responses requested from an invalid snapshot
 
-## Core concepts
+## Core Concepts
 
 ### `PhraseContext`
 
 `PhraseContext` represents what Gitair currently knows about the phrase.
 
-For now, it is hard-coded in the dry run, but later it may come from:
+For now, it is provided to the dry run manually, but later it may come from:
 
 - manual input
 - chord recognition
@@ -83,20 +99,46 @@ Current fields include:
 
 `ControlAction` represents an instruction applied to the session.
 
-For now, the only action is:
+The current actions are:
+
+- `BRING_COMPANION_IN`
+- `SILENCE_COMPANION`
+- `INCREASE_INTENSITY`
+- `DECREASE_INTENSITY`
+
+`BRING_COMPANION_IN` is musician-facing language. During `PRIMING_PASS`, it
+starts the jam by bringing the companion into the performance. During
+`JAM_PASS`, it can bring a silent companion back using the existing phrase
+context.
+
+There is no compatibility action for the old implementation-shaped phase-start
+name. The repo is early, so the public vocabulary has moved to the
+musician-facing action.
+
+### `CompanionState`
+
+`CompanionState` is the small session-owned target state for the companion.
+
+It includes:
+
+- `status`: `active` or `silent`
+- `intensity`: an integer target from `1` to `5`
+
+When the companion first enters, the default state is:
 
 ```text
-START_JAM_PASS
+status = active
+intensity = 3
 ```
 
-Later, this vocabulary may grow to include actions such as:
+`SILENCE_COMPANION` changes status to `silent` without replacing
+`PhraseContext`. `BRING_COMPANION_IN` changes a silent companion back to
+`active`.
 
-- stop jam
-- companion on/off
-- increase intensity
-- decrease intensity
-- capture phrase
-- reset session
+`INCREASE_INTENSITY` and `DECREASE_INTENSITY` adjust the target by one step and
+clamp at `1` and `5`. Smooth crescendos and decrescendos are intentionally out
+of scope for this slice; a future companion or audio adapter can render a smooth
+transition toward the discrete target.
 
 ### `SessionSnapshot`
 
@@ -106,16 +148,20 @@ It currently includes:
 
 - the current session phase
 - the current phrase context, if one has been received
+- the current companion state, if the companion has entered the jam
 
-The snapshot is what other parts of the system can read without directly controlling the session.
+The snapshot is what other parts of the system can read without directly
+controlling the session.
 
 ### `FakeCompanion`
 
 `FakeCompanion` proves the companion boundary.
 
-It does not generate audio and does not talk to a real music model. It simply receives a `SessionSnapshot` and returns a fake response based on the current phase and phrase context.
+It does not generate audio and does not talk to a real music model. It receives
+a `SessionSnapshot` and returns a fake response based on phase, phrase context,
+and companion state.
 
-This makes the future integration point clearer:
+This keeps the future integration point clear:
 
 ```text
 FakeCompanion today
@@ -123,22 +169,30 @@ MRT2Companion later
 Other companions later
 ```
 
-## Dry run
+## Dry Run
 
-The dry run demonstrates the first executable Gitair core path without real audio, webcam input, visuals, or a specific music model.
+The dry run demonstrates the current executable Gitair core path without real
+audio, webcam input, visuals, or a specific music model.
 
-The manually steerable dry run should show:
+The manually steerable dry run shows:
 
 1. the initial session snapshot
 2. a phrase context being received
-3. a control action starting the jam pass
-4. the updated session snapshot
-5. a fake companion response
+3. `BRING_COMPANION_IN` entering the jam pass
+4. `SILENCE_COMPANION` making the companion silent
+5. `BRING_COMPANION_IN` bringing the same companion context back
+6. intensity actions changing the discrete target
+7. fake companion responses from each resulting snapshot
 
-This proves the first tracer bullet:
+This proves the current tracer bullet:
 
 ```text
-Priming Pass → Phrase Context → Control Action → Jam Pass → Companion Response
+Priming Pass
+  -> Phrase Context
+  -> Control Action
+  -> Jam Pass
+  -> Companion State
+  -> Companion Response
 ```
 
 Run it with your own phrase context:
@@ -147,11 +201,12 @@ Run it with your own phrase context:
 uv run python -m gitair.demos.dry_run_session --chords "Dm7,G7,Cmaj7" --tempo-bpm 96 --style-description "quiet bossa nova" --prompt-summary "soft syncopated guitar phrase"
 ```
 
-The command waits for Enter before it applies `START_JAM_PASS`. For non-interactive checks, add `--auto-start-jam`.
+The command waits for Enter before each default steering action. For a
+non-interactive check, add `--auto-demo-steering`.
 
-## What this slice intentionally does not include
+## What This Slice Intentionally Does Not Include
 
-This first slice does not include:
+This slice does not include:
 
 - real guitar audio
 - webcam input
@@ -162,25 +217,25 @@ This first slice does not include:
 - phrase analysis
 - browser UI
 - module loading
+- smooth intensity fades
 
 Those belong to later milestones.
 
-For now, the important thing is that the core session model is small, understandable, and executable.
+For now, the important thing is that the core session model is small,
+understandable, and executable.
 
-## Why this matters
+## Why This Matters
 
-This slice establishes the first shared vocabulary for Gitair:
+This slice keeps the shared vocabulary concrete:
 
 - `Session`
 - `PhraseContext`
 - `ControlAction`
+- `CompanionState`
 - `SessionSnapshot`
 - `Companion`
 - `PRIMING_PASS`
 - `JAM_PASS`
 
-Before adding agents, models, gestures, visuals, or real audio, I want to understand this core flow clearly.
-
-The first goal is not technical completeness.
-
-The first goal is ownership of the main abstraction.
+Before adding agents, models, gestures, visuals, or real audio, the project
+owner should understand this core flow clearly.

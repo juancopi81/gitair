@@ -242,7 +242,7 @@ Use `uv` for local checks:
 uv run pytest
 uv run ruff check .
 uv run ruff format --check .
-uv run python -m gitair.demos.dry_run_session --chords "E7,G5,A" --tempo-bpm 120 --auto-start-jam
+uv run python -m gitair.demos.dry_run_session --chords "E7,G5,A" --tempo-bpm 120 --auto-demo-steering
 ```
 
 ## First practical steps

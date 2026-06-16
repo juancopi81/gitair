@@ -56,7 +56,7 @@ Standard checks:
 
 ```bash
 uv run pytest
-uv run python -m gitair.demos.dry_run_session --chords "E7,G5,A" --tempo-bpm 120 --auto-start-jam
+uv run python -m gitair.demos.dry_run_session --chords "E7,G5,A" --tempo-bpm 120 --auto-demo-steering
 ```
 
 ## Milestone 2 — Manual companion steering
@@ -84,7 +84,7 @@ Milestone 2 should keep input sources manual and explicit. The goal is to decide
 - `INCREASE_INTENSITY`
 - `DECREASE_INTENSITY`
 
-`START_JAM_PASS` is implementation-shaped language from Milestone 1. Milestone 2 replaces it with `BRING_COMPANION_IN` because the musician's cue is to bring the companion into the performance. The repo is still early, so no internal compatibility action or public alias is needed.
+The old implementation-shaped phase-start action from Milestone 1 is replaced by `BRING_COMPANION_IN` because the musician's cue is to bring the companion into the performance. The repo is still early, so no internal compatibility action or public alias is needed.
 
 ### First companion state
 
@@ -107,7 +107,7 @@ The project owner should understand and approve these before agents expand the c
 
 - the first musician-facing `Control Action` vocabulary
 - the shape of `Companion State`: active or silent, intensity `1` to `5`, default `3`
-- replacing `START_JAM_PASS` with `BRING_COMPANION_IN` instead of keeping compatibility aliases
+- replacing the old phase-start action with `BRING_COMPANION_IN` instead of keeping compatibility aliases
 - how smooth intensity transitions should be expressed later
 - which invalid steering operations should raise explicit errors
 

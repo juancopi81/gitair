@@ -12,10 +12,10 @@ uv run ruff check .
 uv run ruff format --check .
 ```
 
-For the current Milestone 1 dry run:
+For the current session-core dry run:
 
 ```bash
-uv run python -m gitair.demos.dry_run_session --chords "E7,G5,A" --tempo-bpm 120 --auto-start-jam
+uv run python -m gitair.demos.dry_run_session --chords "E7,G5,A" --tempo-bpm 120 --auto-demo-steering
 ```
 
 ## Commit messages

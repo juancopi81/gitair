@@ -1,3 +1,4 @@
+from gitair.core.companion_state import CompanionState, CompanionStatus
 from gitair.core.control_action import ControlAction, ControlActionType
 from gitair.core.errors import (
     CompanionNotReady,
@@ -13,6 +14,8 @@ __all__ = [
     "Session",
     "SessionSnapshot",
     "PhraseContext",
+    "CompanionState",
+    "CompanionStatus",
     "ControlAction",
     "ControlActionType",
     "GitairError",

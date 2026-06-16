@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from gitair.core.companion_state import CompanionState
 from gitair.core.phrase_context import PhraseContext
 
 
@@ -23,4 +24,8 @@ class SessionSnapshot(BaseModel):
     phrase_context: Optional[PhraseContext] = Field(
         default=None,
         description="The current phrase context of the session, if one has been received.",
+    )
+    companion_state: Optional[CompanionState] = Field(
+        default=None,
+        description="The current companion state, if the companion has entered the jam.",
     )
