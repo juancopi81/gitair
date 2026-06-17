@@ -4,7 +4,9 @@ from gitair.core.errors import (
     CompanionNotReady,
     GitairError,
     InvalidSessionTransition,
+    UnmappedGestureEvent,
     UnsupportedControlAction,
+    UnsupportedGestureEvent,
 )
 from gitair.core.phrase_context import PhraseContext
 from gitair.core.session import Session
@@ -22,4 +24,6 @@ __all__ = [
     "InvalidSessionTransition",
     "UnsupportedControlAction",
     "CompanionNotReady",
+    "UnsupportedGestureEvent",
+    "UnmappedGestureEvent",
 ]

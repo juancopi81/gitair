@@ -1,8 +1,8 @@
 # Session Core
 
 This document explains the current Gitair session core: the Milestone 1
-priming-to-jam tracer bullet plus the Milestone 2 manual companion steering
-contract.
+priming-to-jam tracer bullet, the Milestone 2 manual companion steering
+contract, and the Milestone 3 gesture event boundary.
 
 The goal is still not to build real audio, webcam input, live visuals, or a
 real music model integration yet. The goal is to keep the main Gitair
@@ -16,6 +16,8 @@ The current layout is intentionally small:
 - `gitair/core/`: the core session logic and data models.
 - `gitair/companions/`: companion implementations. For now, this only includes
   a fake companion.
+- `gitair/gestures/`: source-neutral gesture events, fake gesture sources, and
+  gesture-to-control mapping.
 - `gitair/demos/`: executable demos that assemble the components together.
 - `tests/`: focused tests for the current behavior.
 
@@ -169,6 +171,34 @@ MRT2Companion later
 Other companions later
 ```
 
+## Gesture Boundary
+
+Gestures stay outside the session core. The current Milestone 3 path is:
+
+```text
+Gesture Source
+  -> Gesture Event
+  -> Gesture Mapper
+  -> Control Action
+  -> Session
+```
+
+`GestureEvent` is source-neutral. It contains:
+
+- `gesture_type`: `HEAD_RIGHT`, `HEAD_LEFT`, `NOD_UP`, or `NOD_DOWN`
+- `confidence`: a visible confidence value, defaulting to `1.0`
+
+The default hard-coded mapping is:
+
+- `HEAD_RIGHT` -> `BRING_COMPANION_IN`
+- `HEAD_LEFT` -> `SILENCE_COMPANION`
+- `NOD_UP` -> `INCREASE_INTENSITY`
+- `NOD_DOWN` -> `DECREASE_INTENSITY`
+
+Unsupported or unmapped gesture events fail with custom Gitair errors. Webcam
+input, camera dependencies, thresholds, real gesture detection, configurable
+mapping, and UI controls are intentionally out of scope for this slice.
+
 ## Dry Run
 
 The dry run demonstrates the current executable Gitair core path without real
@@ -204,13 +234,22 @@ uv run python -m gitair.demos.dry_run_session --chords "Dm7,G7,Cmaj7" --tempo-bp
 The command waits for Enter before each default steering action. For a
 non-interactive check, add `--auto-demo-steering`.
 
+The gesture dry run demonstrates the source-neutral gesture boundary:
+
+```bash
+uv run python -m gitair.demos.gesture_dry_run --gestures "HEAD_RIGHT,HEAD_LEFT,HEAD_RIGHT,NOD_UP,NOD_DOWN"
+```
+
+It prints each scripted gesture event, the mapped control action, and the
+resulting companion state.
+
 ## What This Slice Intentionally Does Not Include
 
 This slice does not include:
 
 - real guitar audio
 - webcam input
-- gesture detection
+- real gesture detection
 - live visuals
 - MRT2 integration
 - chord recognition
@@ -234,6 +273,7 @@ This slice keeps the shared vocabulary concrete:
 - `CompanionState`
 - `SessionSnapshot`
 - `Companion`
+- `GestureEvent`
 - `PRIMING_PASS`
 - `JAM_PASS`
 

@@ -165,11 +165,15 @@ Success:
 
 ### 3. Basic gesture control
 
-Prototype webcam-based gesture control.
+Prototype the gesture-to-control boundary before adding webcam detection:
+
+- emit source-neutral gesture events
+- map them to existing control actions
+- apply those actions to the current session
 
 Success:
 
-> I can control the AI companion without taking my hands off the guitar.
+> A scripted gesture can control the AI companion through the same session contract future webcam gestures will use.
 
 ### 4. Musical gestures
 
@@ -243,6 +247,7 @@ uv run pytest
 uv run ruff check .
 uv run ruff format --check .
 uv run python -m gitair.demos.dry_run_session --chords "E7,G5,A" --tempo-bpm 120 --auto-demo-steering
+uv run python -m gitair.demos.gesture_dry_run --gestures "HEAD_RIGHT,HEAD_LEFT,HEAD_RIGHT,NOD_UP,NOD_DOWN"
 ```
 
 ## First practical steps

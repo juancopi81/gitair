@@ -18,6 +18,12 @@ For the current session-core dry run:
 uv run python -m gitair.demos.dry_run_session --chords "E7,G5,A" --tempo-bpm 120 --auto-demo-steering
 ```
 
+For the current gesture-boundary dry run:
+
+```bash
+uv run python -m gitair.demos.gesture_dry_run --gestures "HEAD_RIGHT,HEAD_LEFT,HEAD_RIGHT,NOD_UP,NOD_DOWN"
+```
+
 ## Commit messages
 
 Use Conventional Commit-style prefixes:

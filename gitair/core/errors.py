@@ -15,3 +15,11 @@ class UnsupportedControlAction(GitairError):
 
 class CompanionNotReady(GitairError):
     """Raised when a companion cannot respond from the supplied session state."""
+
+
+class UnsupportedGestureEvent(GitairError):
+    """Raised when a gesture source emits an unsupported gesture event."""
+
+
+class UnmappedGestureEvent(GitairError):
+    """Raised when a gesture event has no control action mapping."""
