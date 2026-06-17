@@ -134,3 +134,96 @@ Agents can safely implement narrow pieces once the owner-owned decisions above a
 ### Validation
 
 Milestone 2 is done when tests prove manual companion steering and the local dry run demonstrates bringing the companion in, silencing it, bringing it back, and changing intensity without replacing the existing phrase context.
+
+## Milestone 3 — Gesture event boundary
+
+### Purpose
+
+Prove the boundary between physical gestures and session control before adding real webcam detection.
+
+Milestone 3 should make this path executable:
+
+```text
+Gesture Event -> Control Action -> Session
+```
+
+The goal is not to recognize real head or hand movement yet. The goal is to define the source-neutral event that a gesture module can emit and the mapper that turns that event into the existing musician-facing control actions.
+
+### Expected behavior
+
+1. A user starts with the existing priming-to-jam dry run.
+2. A fake or manual gesture source emits a `Gesture Event`.
+3. Gitair maps the gesture event to a `Control Action`.
+4. The session applies that control action using the existing Milestone 2 behavior.
+5. The dry run shows both the recognized gesture event and the resulting companion state.
+
+### First gesture mapping
+
+Milestone 3 uses a tiny hard-coded default mapping:
+
+- `HEAD_RIGHT` -> `BRING_COMPANION_IN`
+- `HEAD_LEFT` -> `SILENCE_COMPANION`
+- `NOD_UP` -> `INCREASE_INTENSITY`
+- `NOD_DOWN` -> `DECREASE_INTENSITY`
+
+Configurable gesture mapping is out of scope for this milestone. A later setup screen can let the user choose enabled gestures, mappings, sensitivity, and thresholds.
+
+### First gesture event shape
+
+The first `Gesture Event` shape is:
+
+- `gesture_type`: one of `HEAD_RIGHT`, `HEAD_LEFT`, `NOD_UP`, or `NOD_DOWN`
+- `confidence`: optional float, default `1.0`
+
+For Milestone 3, confidence should be visible in the dry run but should not change behavior. Real thresholds, stability windows, timestamps, durations, raw coordinates, and camera frames are out of scope.
+
+### Boundary with Session
+
+`Session` should not know about gestures. Milestone 3 should keep the boundary outside the session core:
+
+```text
+Gesture Source -> Gesture Event -> Gesture Mapper -> Control Action -> Session
+```
+
+This keeps gesture input, keyboard input, MIDI input, and future UI controls able to share the same `Control Action` contract.
+
+### Demo source
+
+Milestone 3 should start with a scripted fake gesture source, not webcam input or interactive gesture entry.
+
+The default scripted gesture sequence should be:
+
+```text
+HEAD_RIGHT -> HEAD_LEFT -> HEAD_RIGHT -> NOD_UP -> NOD_DOWN
+```
+
+This keeps the demo deterministic, testable, and runnable without camera hardware.
+
+Example command shape:
+
+```bash
+uv run python -m gitair.demos.gesture_dry_run --gestures "HEAD_RIGHT,HEAD_LEFT,HEAD_RIGHT,NOD_UP,NOD_DOWN"
+```
+
+### Invalid gesture events
+
+Milestone 3 should use explicit custom errors for unsupported or unmapped gesture events. These errors should follow the existing `GitairError` pattern instead of using generic `ValueError`s or silently ignoring invalid gesture events.
+
+Raw noisy movement is out of scope for this milestone. Once something is represented as a `Gesture Event`, it should either map to a `Control Action` or fail clearly.
+
+### Validation
+
+Milestone 3 is done when one deterministic command shows the full path:
+
+```text
+scripted gesture event -> mapped control action -> session state change -> visible companion state
+```
+
+Focused tests should cover:
+
+- the `Gesture Event` shape
+- the default gesture mapping
+- unsupported or unmapped gesture errors
+- the fact that `Session` remains gesture-agnostic
+
+The dry run should show each scripted gesture event, the mapped control action, and the resulting companion state. Webcam input, camera dependencies, thresholds, and real gesture detection are out of scope.

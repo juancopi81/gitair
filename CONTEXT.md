@@ -32,6 +32,10 @@ _Avoid_: Model state, backend status
 A physical movement by the musician that Gitair may interpret as a control signal, such as a head turn, nod, or hand cue.
 _Avoid_: Command, shortcut, action
 
+**Gesture Event**:
+A recognized, source-neutral signal derived from a musician's gesture before it is mapped to a control action.
+_Avoid_: Control action, raw camera frame, shortcut
+
 **Control Action**:
 An intentional command accepted by Gitair to change session state, whether triggered by a gesture, keyboard input, MIDI control, or UI control.
 _Avoid_: Shortcut, gesture command, UI event
