@@ -227,3 +227,79 @@ Focused tests should cover:
 - the fact that `Session` remains gesture-agnostic
 
 The dry run should show each scripted gesture event, the mapped control action, and the resulting companion state. Webcam input, camera dependencies, thresholds, and real gesture detection are out of scope.
+
+## Milestone 4 — Webcam gesture source spike
+
+### Purpose
+
+Prove that a real camera-backed `Gesture Source` can emit the same source-neutral `Gesture Event` contract introduced in Milestone 3.
+
+Milestone 4 should make this path executable:
+
+```text
+Webcam Gesture Source -> Gesture Event -> Gesture Mapper -> Control Action -> Session
+```
+
+The goal is not to refine musical gesture feel yet. The goal is to keep `Session` gesture-agnostic while replacing the scripted gesture source with a real input source.
+
+### Expected behavior
+
+1. A user starts a webcam-backed gesture dry run.
+2. The webcam gesture source observes a limited first set of movements.
+3. Gitair emits `Gesture Event`s using the existing event contract.
+4. The existing gesture mapper turns those events into `Control Action`s.
+5. The session applies those actions using the existing companion steering behavior.
+
+### First source choice
+
+Milestone 4 should use MediaPipe Face Landmarker for the first real gesture source. OpenCV can be used only as webcam frame plumbing if needed.
+
+Hand gesture recognition is out of scope for this milestone. MediaPipe Gesture Recognizer or MediaPipe Hands may be useful later for hand or conductor-style cues, but Milestone 4 should focus on head movement.
+
+### First recognized gestures
+
+The first webcam-backed source only needs to emit:
+
+- `HEAD_RIGHT`
+- `HEAD_LEFT`
+
+`NOD_UP` and `NOD_DOWN` remain part of the source-neutral gesture contract, but they are out of scope for the first webcam source. Nods likely need temporal movement detection and should wait until the left/right head-turn path is working.
+
+### Emission behavior
+
+The webcam source should emit a gesture event only when a head turn crosses a clear threshold. After emitting, it should enter a short cooldown and wait for the head to return near neutral before emitting another event.
+
+This keeps one sustained head turn from firing many repeated events. The first threshold and cooldown values can be code constants or CLI flags, but a settings UI is out of scope.
+
+### Runtime failure behavior
+
+Webcam setup failures and MediaPipe/model setup failures should fail clearly with custom Gitair errors.
+
+Runtime frames with no detected face should not emit a `Gesture Event` and should not crash the session. A neutral face position should also emit no event. The webcam dry run should make these states visible enough for the user to understand what the source is seeing.
+
+### Validation
+
+Milestone 4 is done when the gesture-source logic is unit-tested and a human can run a webcam smoke test locally.
+
+Automated tests should cover threshold crossing, cooldown, neutral return, setup/error boundaries where possible, and the fact that `Session` remains gesture-agnostic. Real webcam behavior does not need to be proven in automated tests.
+
+Standard checks:
+
+```bash
+uv run pytest
+uv run ruff check .
+uv run ruff format --check .
+uv run python -m gitair.demos.webcam_gesture_dry_run
+```
+
+The webcam dry run is a manual smoke check. It should show visible source status, emitted gesture events, mapped control actions, and resulting companion state.
+
+### Out of scope
+
+- configurable gesture mapping
+- setup-screen UI
+- polished live overlays
+- phrase or audio integration
+- full musical gesture refinement
+- hand gesture detection
+- webcam-backed nod detection
