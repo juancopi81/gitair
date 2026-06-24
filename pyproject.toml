@@ -5,6 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "mediapipe>=0.10.35",
+    "opencv-contrib-python>=4.13.0.92",
     "pydantic>=2.13.4",
 ]
 

@@ -2,6 +2,8 @@ from gitair.core.companion_state import CompanionState, CompanionStatus
 from gitair.core.control_action import ControlAction, ControlActionType
 from gitair.core.errors import (
     CompanionNotReady,
+    GestureSourceRuntimeError,
+    GestureSourceSetupError,
     GitairError,
     InvalidGestureSourceConfiguration,
     InvalidGestureSourceInput,
@@ -30,4 +32,6 @@ __all__ = [
     "UnmappedGestureEvent",
     "InvalidGestureSourceConfiguration",
     "InvalidGestureSourceInput",
+    "GestureSourceSetupError",
+    "GestureSourceRuntimeError",
 ]

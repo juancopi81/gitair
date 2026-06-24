@@ -31,3 +31,11 @@ class InvalidGestureSourceConfiguration(GitairError):
 
 class InvalidGestureSourceInput(GitairError):
     """Raised when a gesture source receives invalid input data."""
+
+
+class GestureSourceSetupError(GitairError):
+    """Raised when a real gesture source cannot be initialized."""
+
+
+class GestureSourceRuntimeError(GitairError):
+    """Raised when a real gesture source fails while reading input."""

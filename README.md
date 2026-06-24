@@ -175,6 +175,12 @@ Success:
 
 > A scripted gesture can control the AI companion through the same session contract future webcam gestures will use.
 
+Try the scripted gesture dry run:
+
+```bash
+uv run python -m gitair.demos.gesture_dry_run --gestures "HEAD_RIGHT,HEAD_LEFT,HEAD_RIGHT,NOD_UP,NOD_DOWN"
+```
+
 ### 4. Musical gestures
 
 Refine gestures so they feel natural while playing.
@@ -182,6 +188,13 @@ Refine gestures so they feel natural while playing.
 Success:
 
 > Gestures feel like musical cues rather than keyboard shortcuts.
+
+The first webcam spike uses MediaPipe Face Landmarker for head-left/head-right
+only. Keep the model file outside git and pass it locally:
+
+```bash
+GITAIR_FACE_LANDMARKER_MODEL=/absolute/path/to/face_landmarker.task uv run python -m gitair.demos.webcam_gesture_dry_run
+```
 
 ### 5. Phrase priming
 

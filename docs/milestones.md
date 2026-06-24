@@ -289,10 +289,14 @@ Standard checks:
 uv run pytest
 uv run ruff check .
 uv run ruff format --check .
-uv run python -m gitair.demos.webcam_gesture_dry_run
+GITAIR_FACE_LANDMARKER_MODEL=/absolute/path/to/face_landmarker.task uv run python -m gitair.demos.webcam_gesture_dry_run
 ```
 
 The webcam dry run is a manual smoke check. It should show visible source status, emitted gesture events, mapped control actions, and resulting companion state.
+The source calibrates neutral yaw from the first detected face frames before
+emitting. If a local camera still reports left and right backwards, rerun with
+`--invert-yaw`; this only flips Gitair's source-adapter yaw sign and does not
+change the gesture mapping contract.
 
 ### Out of scope
 

@@ -2,12 +2,13 @@
 
 This document explains the current Gitair session core: the Milestone 1
 priming-to-jam tracer bullet, the Milestone 2 manual companion steering
-contract, and the Milestone 3 gesture event boundary.
+contract, the Milestone 3 gesture event boundary, and the Milestone 4 webcam
+gesture source spike.
 
-The goal is still not to build real audio, webcam input, live visuals, or a
-real music model integration yet. The goal is to keep the main Gitair
-abstraction explicit enough that the project owner can explain it before
-delegating broader work to agents.
+The goal is still not to build real audio, live visuals, polished UI, or a real
+music model integration yet. The goal is to keep the main Gitair abstraction
+explicit enough that the project owner can explain it before delegating broader
+work to agents.
 
 ## Layout
 
@@ -195,16 +196,19 @@ The default hard-coded mapping is:
 - `NOD_UP` -> `INCREASE_INTENSITY`
 - `NOD_DOWN` -> `DECREASE_INTENSITY`
 
-Unsupported or unmapped gesture events fail with custom Gitair errors. Webcam
-input, camera dependencies, thresholds, real gesture detection, configurable
-mapping, and UI controls are intentionally out of scope for this slice.
+Unsupported or unmapped gesture events fail with custom Gitair errors.
+Configurable mapping, hand gestures, webcam-backed nod detection, and UI
+controls remain out of scope.
 
 For the first Milestone 4 slice, Gitair also has reusable head-turn source
 logic that consumes synthetic yaw samples. Positive yaw can emit `HEAD_RIGHT`,
 negative yaw can emit `HEAD_LEFT`, and neutral yaw emits no event. The source
 uses threshold crossing, cooldown, and neutral return so one held head turn does
-not repeatedly fire. It still does not depend on webcam, MediaPipe, OpenCV, or
-`Session`.
+not repeatedly fire. The real webcam adapter uses MediaPipe Face Landmarker to
+produce yaw samples and OpenCV only to read webcam frames. It emits the same
+source-neutral `GestureEvent` values and still keeps `Session` gesture-agnostic.
+The model file is local-only: pass `--model-path` or set
+`GITAIR_FACE_LANDMARKER_MODEL` to an absolute `face_landmarker.task` path.
 
 ## Dry Run
 
@@ -250,13 +254,22 @@ uv run python -m gitair.demos.gesture_dry_run --gestures "HEAD_RIGHT,HEAD_LEFT,H
 It prints each scripted gesture event, the mapped control action, and the
 resulting companion state.
 
+The webcam gesture dry run demonstrates the first real gesture source:
+
+```bash
+GITAIR_FACE_LANDMARKER_MODEL=/absolute/path/to/face_landmarker.task uv run python -m gitair.demos.webcam_gesture_dry_run
+```
+
+It prints source status, emitted `HEAD_RIGHT` and `HEAD_LEFT` gesture events,
+mapped control actions, and resulting companion state. It calibrates neutral
+yaw from the first detected face frames before emitting. If your local camera
+still reports left and right backwards, add `--invert-yaw` for the smoke test.
+
 ## What This Slice Intentionally Does Not Include
 
 This slice does not include:
 
 - real guitar audio
-- webcam input
-- real gesture detection
 - live visuals
 - MRT2 integration
 - chord recognition
@@ -264,6 +277,9 @@ This slice does not include:
 - browser UI
 - module loading
 - smooth intensity fades
+- hand gesture detection
+- webcam-backed nod detection
+- configurable gesture mapping
 
 Those belong to later milestones.
 
