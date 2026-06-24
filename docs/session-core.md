@@ -199,6 +199,13 @@ Unsupported or unmapped gesture events fail with custom Gitair errors. Webcam
 input, camera dependencies, thresholds, real gesture detection, configurable
 mapping, and UI controls are intentionally out of scope for this slice.
 
+For the first Milestone 4 slice, Gitair also has reusable head-turn source
+logic that consumes synthetic yaw samples. Positive yaw can emit `HEAD_RIGHT`,
+negative yaw can emit `HEAD_LEFT`, and neutral yaw emits no event. The source
+uses threshold crossing, cooldown, and neutral return so one held head turn does
+not repeatedly fire. It still does not depend on webcam, MediaPipe, OpenCV, or
+`Session`.
+
 ## Dry Run
 
 The dry run demonstrates the current executable Gitair core path without real

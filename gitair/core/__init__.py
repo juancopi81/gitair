@@ -3,6 +3,8 @@ from gitair.core.control_action import ControlAction, ControlActionType
 from gitair.core.errors import (
     CompanionNotReady,
     GitairError,
+    InvalidGestureSourceConfiguration,
+    InvalidGestureSourceInput,
     InvalidSessionTransition,
     UnmappedGestureEvent,
     UnsupportedControlAction,
@@ -26,4 +28,6 @@ __all__ = [
     "CompanionNotReady",
     "UnsupportedGestureEvent",
     "UnmappedGestureEvent",
+    "InvalidGestureSourceConfiguration",
+    "InvalidGestureSourceInput",
 ]

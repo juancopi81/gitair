@@ -23,3 +23,11 @@ class UnsupportedGestureEvent(GitairError):
 
 class UnmappedGestureEvent(GitairError):
     """Raised when a gesture event has no control action mapping."""
+
+
+class InvalidGestureSourceConfiguration(GitairError):
+    """Raised when a gesture source is configured with invalid settings."""
+
+
+class InvalidGestureSourceInput(GitairError):
+    """Raised when a gesture source receives invalid input data."""
