@@ -307,3 +307,78 @@ change the gesture mapping contract.
 - full musical gesture refinement
 - hand gesture detection
 - webcam-backed nod detection
+
+## Milestone 5 — Priming source boundary
+
+### Purpose
+
+Define the boundary that turns a priming pass into phrase context before adding
+real audio capture, chord recognition, embeddings, or prompt generation.
+
+Milestone 5 should make this path executable:
+
+```text
+Priming Source -> Phrase Context -> Session
+```
+
+The goal is not automatic music understanding yet. The goal is to make the
+priming pass behave like a bounded activity that produces phrase context at the
+end, so future priming sources can replace the first manual/scripted source
+without changing the session flow.
+
+### Expected behavior
+
+1. A user starts a session in the priming pass.
+2. A priming source starts.
+3. The user plays or otherwise provides priming information.
+4. The priming source finishes.
+5. The priming source produces `Phrase Context`.
+6. The session receives that phrase context.
+7. Existing control actions or gestures can bring the companion into the jam
+   pass using that context.
+
+The first demo should prove the owner-facing cue:
+
+```text
+HEAD_RIGHT during PRIMING_PASS
+  -> finish priming source
+  -> receive PhraseContext
+  -> apply BRING_COMPANION_IN
+  -> enter JAM_PASS with active companion
+```
+
+After the jam pass has started, the existing gesture behavior should still
+apply. For example, `HEAD_LEFT` should still map to `SILENCE_COMPANION`.
+
+### First source shape
+
+The first priming source should have an explicit lifecycle:
+
+```text
+start -> finish -> PhraseContext
+```
+
+For this milestone, the source may be manual or scripted. It should still act
+like a source instead of passing prebuilt phrase context directly into the
+session at startup.
+
+`finish` is a priming-source operation, not a session control action. A single
+performer cue may orchestrate both steps:
+
+```text
+finish priming source -> receive PhraseContext -> BRING_COMPANION_IN
+```
+
+Internally, those responsibilities stay separate. `BRING_COMPANION_IN` remains
+the session action that makes the companion active; it should not know how to
+finish a priming source.
+
+### Out of scope
+
+- real audio capture
+- chord recognition
+- tempo detection
+- embeddings
+- prompt generation
+- permanent audio recording
+- polished setup UI

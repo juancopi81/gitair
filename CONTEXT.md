@@ -20,6 +20,10 @@ _Avoid_: Playback, generation phase, performance
 Temporary musical information extracted or entered during the priming pass to steer the AI companion during the jam pass.
 _Avoid_: Recording, sample, training data, memory
 
+**Priming Source**:
+An input capability that observes or provides priming-pass information and produces phrase context.
+_Avoid_: Recorder, analyzer, extractor, memory
+
 **Companion**:
 The AI-driven musical counterpart that joins the musician during a jam pass and is steered by session settings, control actions, and phrase context.
 _Avoid_: Model, bandmate, bot, generator
