@@ -3,7 +3,7 @@
 This document explains the current Gitair session core: the Milestone 1
 priming-to-jam tracer bullet, the Milestone 2 manual companion steering
 contract, the Milestone 3 gesture event boundary, and the Milestone 4 webcam
-gesture source spike.
+gesture source spike, and the Milestone 5 priming source boundary.
 
 The goal is still not to build real audio, live visuals, polished UI, or a real
 music model integration yet. The goal is to keep the main Gitair abstraction
@@ -19,6 +19,7 @@ The current layout is intentionally small:
   a fake companion.
 - `gitair/gestures/`: source-neutral gesture events, fake gesture sources, and
   gesture-to-control mapping.
+- `gitair/priming/`: priming sources that produce phrase context.
 - `gitair/demos/`: executable demos that assemble the components together.
 - `tests/`: focused tests for the current behavior.
 
@@ -97,6 +98,29 @@ Current fields include:
 - tempo
 - style description
 - prompt summary
+
+### `PrimingSource`
+
+`PrimingSource` is the boundary that turns a priming pass into phrase context.
+
+The current first source is `ManualPrimingSource`. It is backed by manually
+supplied phrase context, but it still has an explicit lifecycle:
+
+```text
+start -> finish -> PhraseContext
+```
+
+`finish` belongs to the priming source, not the session. A demo or future
+orchestrator can use one performer cue to finish the priming source, send the
+resulting `PhraseContext` into the session, and then apply
+`BRING_COMPANION_IN`.
+
+This keeps responsibilities separate:
+
+```text
+Priming Source -> PhraseContext -> Session
+Gesture Source -> GestureEvent -> GestureMapper -> ControlAction -> Session
+```
 
 ### `ControlAction`
 
@@ -265,6 +289,17 @@ mapped control actions, and resulting companion state. It calibrates neutral
 yaw from the first detected face frames before emitting. If your local camera
 still reports left and right backwards, add `--invert-yaw` for the smoke test.
 
+The priming source dry run demonstrates the first priming source boundary:
+
+```bash
+uv run python -m gitair.demos.priming_source_dry_run --gestures "HEAD_RIGHT,HEAD_LEFT"
+```
+
+It starts a manual priming source, uses `HEAD_RIGHT` during `PRIMING_PASS` to
+finish the source, sends the produced `PhraseContext` into the session, applies
+`BRING_COMPANION_IN`, and then uses `HEAD_LEFT` to silence the companion after
+the jam pass has started.
+
 ## What This Slice Intentionally Does Not Include
 
 This slice does not include:
@@ -280,6 +315,8 @@ This slice does not include:
 - hand gesture detection
 - webcam-backed nod detection
 - configurable gesture mapping
+- real priming audio capture
+- automatic phrase analysis
 
 Those belong to later milestones.
 
@@ -292,6 +329,7 @@ This slice keeps the shared vocabulary concrete:
 
 - `Session`
 - `PhraseContext`
+- `PrimingSource`
 - `ControlAction`
 - `CompanionState`
 - `SessionSnapshot`

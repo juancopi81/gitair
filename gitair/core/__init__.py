@@ -7,6 +7,7 @@ from gitair.core.errors import (
     GitairError,
     InvalidGestureSourceConfiguration,
     InvalidGestureSourceInput,
+    InvalidPrimingSourceTransition,
     InvalidSessionTransition,
     UnmappedGestureEvent,
     UnsupportedControlAction,
@@ -34,4 +35,5 @@ __all__ = [
     "InvalidGestureSourceInput",
     "GestureSourceSetupError",
     "GestureSourceRuntimeError",
+    "InvalidPrimingSourceTransition",
 ]

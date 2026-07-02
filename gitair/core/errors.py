@@ -39,3 +39,7 @@ class GestureSourceSetupError(GitairError):
 
 class GestureSourceRuntimeError(GitairError):
     """Raised when a real gesture source fails while reading input."""
+
+
+class InvalidPrimingSourceTransition(GitairError):
+    """Raised when a priming source receives an invalid transition."""

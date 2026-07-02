@@ -1,6 +1,16 @@
 # Use musician-facing companion actions
 
-Gitair will use musician-facing control actions for companion steering instead of exposing implementation-shaped phase names as the primary action vocabulary. In particular, `BRING_COMPANION_IN` is the performer-facing action: during `PRIMING_PASS` it ends priming, enters `JAM_PASS`, and activates the companion; during `JAM_PASS` with a silent companion, it brings the companion back using the existing phrase context.
+Gitair will use musician-facing control actions for companion steering instead
+of exposing implementation-shaped phase names as the primary action vocabulary.
+In particular, `BRING_COMPANION_IN` is the performer-facing action: during
+`PRIMING_PASS` it enters `JAM_PASS` and activates the companion once phrase
+context is available; during `JAM_PASS` with a silent companion, it brings the
+companion back using the existing phrase context.
+
+When a priming source is present, the same performer cue may first finish the
+priming source and send its phrase context to the session. That orchestration is
+outside the session action itself: `BRING_COMPANION_IN` does not know how to
+finish a priming source.
 
 Because Gitair is still early, `BRING_COMPANION_IN` replaces the old phase-start action rather than wrapping it or keeping it as a compatibility alias.
 
