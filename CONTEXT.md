@@ -20,6 +20,10 @@ _Avoid_: Playback, generation phase, performance
 Temporary musical information extracted or entered during the priming pass to steer the AI companion during the jam pass.
 _Avoid_: Recording, sample, training data, memory
 
+**Priming Audio Buffer**:
+Temporary in-memory audio captured during the priming pass so a priming source can later derive phrase context from it.
+_Avoid_: Recording, file, permanent memory, training data
+
 **Priming Source**:
 An input capability that observes or provides priming-pass information and produces phrase context.
 _Avoid_: Recorder, analyzer, extractor, memory

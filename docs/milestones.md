@@ -467,3 +467,96 @@ The new demo command should make the architecture visible in terminal output:
 priming source state, webcam source status, gesture event, mapped control
 action, session snapshot, and companion response should all be clear enough for
 the project owner to review from logs.
+
+## Milestone 7 — Audio priming source
+
+### Purpose
+
+Start real priming capture by adding an audio-backed priming source that can
+hold a temporary priming audio buffer during the priming pass.
+
+Milestone 7 should prove audio capture plumbing and priming source lifecycle,
+not musical analysis. The source should still return manually supplied phrase
+context when it finishes.
+
+### First buffer boundary
+
+The first priming audio buffer should be in memory only. It should be discarded
+after the dry run and should not be written as a `.wav` file or permanent
+recording.
+
+The dry run may print observable buffer facts such as duration, sample rate,
+channel count, and frame count so the project owner can confirm that the source
+captured audio during the priming pass.
+
+### First input boundary
+
+The first audio-backed priming source should use real microphone or audio-input
+capture in the demo. Automated tests should use fake or generated audio chunks
+so validation does not depend on local hardware, device permissions, or ambient
+sound.
+
+The first microphone capture dependency should be `sounddevice`. It is allowed
+as a production dependency for this milestone because it provides focused
+cross-platform audio input over PortAudio without pulling in a broader music
+analysis stack.
+
+Milestone 7 should keep the existing `PrimingSource` protocol unchanged:
+
+```text
+start -> finish -> PhraseContext
+```
+
+Audio buffer facts should stay source-local and visible through the dry run
+rather than changing `finish` to return a richer result object.
+
+Because Milestone 7 is about capture rather than analysis, the first
+audio-backed priming source should still accept manually supplied phrase context
+fields and return that context from `finish`.
+
+Milestone 7 should integrate audio capture into the webcam priming flow instead
+of creating a separate audio-only milestone. `HEAD_RIGHT` during the priming pass
+should stop the audio-backed priming source, keep the captured priming audio
+buffer in memory, return the manually supplied phrase context, and then enter
+the jam pass through the existing `BRING_COMPANION_IN` action.
+
+Tests should still isolate audio capture behavior with fake audio chunks and
+fake webcam observations so hardware-dependent failures remain easy to
+diagnose.
+
+Milestone 7 should add a new integrated command for webcam plus audio priming
+instead of replacing the existing Milestone 6 command. The Milestone 6 command
+should remain as a known-good fallback for debugging gesture and priming
+orchestration without microphone permissions or audio device setup.
+
+The new command should be named `webcam_audio_priming_dry_run`.
+
+The demo should log only minimal priming audio buffer facts:
+
+- duration in seconds
+- sample rate
+- channel count
+- frame count
+- chunk count
+
+Amplitude, silence, clipping, waveform preview, export, chord recognition, and
+tempo analysis are out of scope for this milestone.
+
+Audio capture should start when the audio-backed priming source starts. It does
+not need to wait for webcam calibration in this milestone. If future audio
+analysis needs cleaner bar boundaries, Gitair can add a separate musical-capture
+start cue or source-ready event later.
+
+Audio input setup and runtime failures should use explicit Gitair errors, such
+as `AudioSourceSetupError` and `AudioSourceRuntimeError`, instead of leaking raw
+`sounddevice` exceptions or silently continuing.
+
+Finishing with zero captured audio chunks should be allowed for Milestone 7, but
+the dry run must make that visible through buffer facts such as `chunk_count: 0`,
+`frame_count: 0`, and `duration_seconds: 0.0`. Later audio-analysis milestones
+can make empty capture a validation failure.
+
+The project owner should define the small `PrimingAudioBuffer` abstraction
+before delegating the rest of the milestone. Agents can then implement the
+audio-backed priming source, `sounddevice` wiring, demo command, and tests
+around that owner-owned buffer shape.
