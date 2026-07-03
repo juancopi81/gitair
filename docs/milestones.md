@@ -382,3 +382,88 @@ finish a priming source.
 - prompt generation
 - permanent audio recording
 - polished setup UI
+
+## Milestone 6 — Integrated webcam priming dry run
+
+### Purpose
+
+Prove the first live-feeling Gitair loop by combining the real webcam gesture
+source with the priming source boundary before introducing a production
+orchestration abstraction.
+
+Milestone 6 should make this path executable:
+
+```text
+Webcam Gesture Source -> Gesture Event -> Control Action
+Manual Priming Source -> Phrase Context -> Session
+```
+
+The performer-facing behavior should be:
+
+```text
+HEAD_RIGHT during PRIMING_PASS
+  -> finish priming source
+  -> receive PhraseContext
+  -> apply BRING_COMPANION_IN
+  -> enter JAM_PASS with active companion
+```
+
+After the jam pass has started, the existing gesture behavior should still
+apply. For example, `HEAD_LEFT` should still map to `SILENCE_COMPANION`.
+
+The first integrated dry run should reuse `ManualPrimingSource` with
+CLI-provided phrase context fields. It should not prompt for phrase context
+after the gesture, because that would interrupt the performer-facing flow this
+milestone is trying to prove.
+
+Milestone 6 should add a new demo command instead of changing the existing
+webcam gesture dry run. The existing webcam command should remain focused on
+proving the gesture source boundary with phrase context already present; the new
+command should prove the integrated priming-to-jam flow.
+
+If `HEAD_LEFT` is emitted while the session is still in the priming pass, the
+demo should map it to `SILENCE_COMPANION`, show the existing explicit session
+error, and keep priming running. `HEAD_LEFT` should not finish priming, cancel
+priming, or be silently ignored in this milestone.
+
+After the companion is active, a repeated `HEAD_RIGHT` should keep the existing
+strict rejection for bringing in an already active companion. Milestone 6 should
+not add state-dependent gesture remapping such as treating repeated
+`HEAD_RIGHT` as intensity control.
+
+### Orchestration boundary
+
+For this milestone, orchestration should remain in the demo layer. Gitair should
+not introduce a production `SessionOrchestrator` yet.
+
+The promotion rule is:
+
+```text
+Keep orchestration in the demo layer until at least two real flows need the
+same coordination logic.
+```
+
+This avoids turning the first integrated dry run into a general-purpose
+orchestrator before Gitair knows whether orchestration should own source
+lifetimes, companion responses, shutdown, UI state, or multiple input streams.
+
+### Validation
+
+Milestone 6 should have automated tests for deterministic orchestration using a
+fake source or source factory. Tests should cover:
+
+- `HEAD_LEFT` during the priming pass is visibly rejected and keeps priming
+  running
+- `HEAD_RIGHT` during the priming pass finishes the priming source, sends phrase
+  context to the session, and enters the jam pass with the companion active
+- `HEAD_LEFT` after the jam pass starts silences the companion
+- repeated `HEAD_RIGHT` while the companion is already active keeps the existing
+  explicit rejection
+
+Real webcam behavior remains a human smoke test because it depends on local
+hardware, lighting, model files, and camera orientation.
+
+The new demo command should make the architecture visible in terminal output:
+priming source state, webcam source status, gesture event, mapped control
+action, session snapshot, and companion response should all be clear enough for
+the project owner to review from logs.
