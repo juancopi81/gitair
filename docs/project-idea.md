@@ -372,6 +372,8 @@ Possible visual traits:
 - cyan / magenta / violet / amber accents
 - scanline / HUD-like hints without becoming cluttered
 
+This direction is examined and refined in [interface-aesthetics.md](interface-aesthetics.md), which questions some of these traits and grounds the aesthetic in a more deliberate relationship with lost futures.
+
 ## Core UX principle
 
 At any moment, the interface should help answer:

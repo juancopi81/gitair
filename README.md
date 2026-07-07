@@ -77,6 +77,8 @@ Gitair should eventually have a futuristic live screen showing:
 
 The interface should feel more like an instrument than a normal app dashboard.
 
+The visual and ritual direction for this interface — and why it deliberately avoids retro pastiche — is explored in [docs/interface-aesthetics.md](docs/interface-aesthetics.md).
+
 ## Possible modules
 
 Gitair is intended to stay modular and extensible.
