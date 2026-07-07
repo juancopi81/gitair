@@ -11,6 +11,7 @@ Before broad design or implementation work, read:
 - `docs/project-idea.md`
 - `docs/milestones.md`
 - `docs/research-modules.md`
+- `docs/companion-spike-brief.md` (current decision record and next focus)
 
 The project owner should retain the main architecture, domain language, milestone behavior, and module contracts. Agents can implement narrow helper files, adapters, tests, and prototypes once those contracts are explicit.
 

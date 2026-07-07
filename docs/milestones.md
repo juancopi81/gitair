@@ -560,3 +560,26 @@ The project owner should define the small `PrimingAudioBuffer` abstraction
 before delegating the rest of the milestone. Agents can then implement the
 audio-backed priming source, `sounddevice` wiring, demo command, and tests
 around that owner-owned buffer shape.
+
+## Current focus — Companion spike
+
+Milestones 1 through 7 are implemented. The next step is not Milestone 8.
+
+Before defining the next milestone, Gitair should run the companion spike
+described in [companion-spike-brief.md](companion-spike-brief.md). The spike is
+a throwaway real-sound experiment, not a milestone: it answers whether the
+companion direction is musically convincing before more shell code is written.
+
+The spike brief records the current decision record, including the jam-pass
+repetition contract, cycle-quantized generation, the companion-owned clock, the
+first companion role, and the two-layer memory model.
+
+Sequencing:
+
+1. Run the spike phases in order: first listen, cycle loop bench, jam.
+2. Score each jam session with the listening rubric in the brief.
+3. Write Milestone 8 from the spike's evidence.
+
+`CONTEXT.md` is deliberately behind the spike brief's decisions. New terms such
+as `Cycle`, `Session Record`, and `Companion Role` should be ratified into the
+domain language only after the spike validates them.
