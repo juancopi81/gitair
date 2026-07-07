@@ -1,6 +1,8 @@
 from gitair.core.companion_state import CompanionState, CompanionStatus
 from gitair.core.control_action import ControlAction, ControlActionType
 from gitair.core.errors import (
+    AudioSourceRuntimeError,
+    AudioSourceSetupError,
     CompanionNotReady,
     GestureSourceRuntimeError,
     GestureSourceSetupError,
@@ -36,4 +38,6 @@ __all__ = [
     "GestureSourceSetupError",
     "GestureSourceRuntimeError",
     "InvalidPrimingSourceTransition",
+    "AudioSourceSetupError",
+    "AudioSourceRuntimeError",
 ]

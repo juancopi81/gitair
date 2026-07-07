@@ -43,3 +43,11 @@ class GestureSourceRuntimeError(GitairError):
 
 class InvalidPrimingSourceTransition(GitairError):
     """Raised when a priming source receives an invalid transition."""
+
+
+class AudioSourceSetupError(GitairError):
+    """Raised when an audio-backed priming source cannot be initialized."""
+
+
+class AudioSourceRuntimeError(GitairError):
+    """Raised when an audio-backed priming source fails while capturing input."""
