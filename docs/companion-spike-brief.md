@@ -202,6 +202,8 @@ past a failed phase.
 ### Phase 0 — First listen (model in isolation, no Gitair)
 
 Run MRT2 and at least one chord-conditioned one-shot alternative, raw.
+Use [companion-spike-phase0-run-sheet.md](companion-spike-phase0-run-sheet.md)
+to record candidate setup, generated outputs, and keep/reject decisions.
 
 Measure:
 
