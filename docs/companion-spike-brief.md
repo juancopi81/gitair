@@ -167,9 +167,9 @@ Every spike session uses the same phrase so results are comparable across
 sessions and models:
 
 > A simple broken-chord arpeggio in C major, moto perpetuo, texture akin to the
-> prelude of Bach's first cello suite. The bass descends by semitones from C
-> until it reaches G, ending on a G major colored with an added 4th (a C note
-> held over G major).
+> prelude of Bach's first cello suite. The bass descends from C to B to Bb to A,
+> then skips Ab and lands on G, ending on a G major colored with an added 4th (a
+> C note held over G major).
 
 Why this loop is a good instrument:
 
@@ -182,14 +182,16 @@ Why this loop is a good instrument:
 - Chromatic/slash-chord harmony stress-tests chord conditioning exactly where
   naive models break.
 
-**To fill in at the first spike session** (this becomes the canonical
-`PhraseContext`):
+The canonical source file is
+`tests/fixtures/gitair_canonical_loop_1.musicxml`. The companion expected fixture
+is `tests/fixtures/gitair_canonical_loop_1.expected.json`. Future ML analysis
+should parse the MusicXML and compare its output against the expected fixture.
 
 ```text
-chords per bar : TBD (exact voicings, one pass through the descent)
-bar count      : TBD
-tempo          : TBD BPM
-cycle length   : TBD seconds
+chords per bar : C | C | Cmaj7/B | Cmaj7/B | C7/Bb | C7/Bb | Am7 | Am7 | G | G | Gadd4 | Gadd4
+bar count      : 12
+tempo          : 114 BPM
+cycle length   : 25.26 seconds
 ```
 
 ## Spike design

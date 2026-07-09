@@ -1,0 +1,47 @@
+{
+  "id": "gitair_canonical_loop_1",
+  "source_musicxml": "tests/fixtures/gitair_canonical_loop_1.musicxml",
+  "description": "Canonical Phase 0 companion-spike loop: a broken-chord guitar arpeggio with a descending bass and Gadd4 ending color.",
+  "meter": {
+    "beats": 4,
+    "beat_type": 4
+  },
+  "bar_count": 12,
+  "tempo_bpm": 114,
+  "cycle_length_beats": 48,
+  "cycle_length_seconds": 25.263157894736842,
+  "display_cycle_length_seconds": 25.26,
+  "chords_per_bar": [
+    "C",
+    "C",
+    "Cmaj7/B",
+    "Cmaj7/B",
+    "C7/Bb",
+    "C7/Bb",
+    "Am7",
+    "Am7",
+    "G",
+    "G",
+    "Gadd4",
+    "Gadd4"
+  ],
+  "bass_motion": [
+    "C",
+    "B",
+    "Bb",
+    "A",
+    "G"
+  ],
+  "intentional_omissions": [
+    "The bass descent skips Ab before landing on G."
+  ],
+  "target_texture": "sparse harmonically-moving atmosphere",
+  "reject_if": [
+    "the output is a static pad that does not track the chord or bass movement",
+    "the output misses the C to B to Bb to A to G bass motion",
+    "the output collapses the ending color into plain G with no added-4th feel",
+    "the output adds drums or a lead melody",
+    "the output is too dense or overpowers the guitar role",
+    "the model cannot generate one usable cycle in less than the cycle duration"
+  ]
+}
