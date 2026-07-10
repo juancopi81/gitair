@@ -41,12 +41,12 @@ Reject a model output if it:
 
 ## Candidate Plan
 
-| Candidate | Phase 0 role | Host target | Conditioning to try | Why it is here | First verdict |
-|---|---|---|---|---|---|
-| MRT2 small | Primary Gitair/live-instrument candidate | Local Apple Silicon | Text first, then MIDI/audio if setup is practical | Best match for eventual live local companion; not a clean chord-progression baseline | Pending |
-| MRT2 base | Higher-quality MRT2 comparison | Local if hardware supports it; otherwise offline/cloud | Same as MRT2 small | Tests whether quality gain matters enough for Gitair | Pending |
-| MusiConGen | Explicit chord + BPM control baseline | Cloud GPU first | Symbolic chords, BPM, text prompt | Best fit for checking whether the canonical chord cycle can be followed directly | Pending |
-| ACE-Step 1.5 | Optional fast modern wildcard | Local or cloud, depending on setup | Text, duration, BPM, key/meter if supported | Fast current model; useful if prompt-only output already feels musically promising | Optional |
+| Candidate    | Phase 0 role                             | Host target                                            | Conditioning to try                               | Why it is here                                                                       | First verdict |
+| ------------ | ---------------------------------------- | ------------------------------------------------------ | ------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------- |
+| MRT2 small   | Primary Gitair/live-instrument candidate | Local Apple Silicon                                    | Text first, then MIDI/audio if setup is practical | Best match for eventual live local companion; not a clean chord-progression baseline | Pending       |
+| MRT2 base    | Higher-quality MRT2 comparison           | Local if hardware supports it; otherwise offline/cloud | Same as MRT2 small                                | Tests whether quality gain matters enough for Gitair                                 | Pending       |
+| MusiConGen   | Explicit chord + BPM control baseline    | Cloud GPU first                                        | Symbolic chords, BPM, text prompt                 | Best fit for checking whether the canonical chord cycle can be followed directly     | Pending       |
+| ACE-Step 1.5 | Optional fast modern wildcard            | Local or cloud, depending on setup                     | Text, duration, BPM, key/meter if supported       | Fast current model; useful if prompt-only output already feels musically promising   | Optional      |
 
 ## Shared Prompt Targets
 
@@ -73,11 +73,11 @@ cycle at 114 BPM. No drums. No lead melody. No vocals.
 
 Copy one row per generated output.
 
-| Run ID | Date | Candidate | Host | Input conditioning | Prompt variant | Target duration | Gen time | Output duration | Harmony following | Texture fit | Locality effect | Verdict | Notes |
-|---|---|---|---|---|---|---:|---:|---:|---|---|---|---|---|
-| phase0-001 | TBD | MRT2 small | local | text | neutral | 25.26s | TBD | TBD | TBD | TBD | n/a | pending |  |
-| phase0-002 | TBD | MusiConGen | cloud GPU | chords + BPM + text | neutral | 25.26s | TBD | TBD | TBD | TBD | n/a | pending |  |
-| phase0-003 | TBD | ACE-Step 1.5 | TBD | text + metadata | neutral | 25.26s | TBD | TBD | TBD | TBD | n/a | optional |  |
+| Run ID     | Date       | Candidate    | Host                | Input conditioning  | Prompt variant | Target duration |                  Gen time | Output duration | Harmony following | Texture fit | Locality effect | Verdict  | Notes                                                                                                                                                                    |
+| ---------- | ---------- | ------------ | ------------------- | ------------------- | -------------- | --------------: | ------------------------: | --------------: | ----------------- | ----------- | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| phase0-001 | 2026-07-08 | MRT2 small   | local Apple Silicon | text                | neutral        |          25.26s | 10.1s model / 19.27s wall |          25.26s | weak partial / no | partial     | n/a             | maybe    | Setup works and generation is fast enough for one cycle. Text-only output was audible but not yet musically convincing; needs stronger conditioning or prompt follow-up. |
+| phase0-002 | TBD        | MusiConGen   | cloud GPU           | chords + BPM + text | neutral        |          25.26s |                       TBD |             TBD | TBD               | TBD         | n/a             | pending  |                                                                                                                                                                          |
+| phase0-003 | TBD        | ACE-Step 1.5 | TBD                 | text + metadata     | neutral        |          25.26s |                       TBD |             TBD | TBD               | TBD         | n/a             | optional |                                                                                                                                                                          |
 
 Use these values for judgment fields:
 
@@ -97,3 +97,35 @@ A model survives Phase 0 only if at least one generated output is:
 
 If no candidate survives, do not start Phase 1. Revisit the companion role,
 candidate set, or canonical loop before writing cycle-loop code.
+
+## Timing Notes
+
+For `phase0-001`, MRT2 reported:
+
+```text
+Generated 631 frames in 10.1s (62.5 steps/s, 16.0 ms/step)
+Target: 25 steps/s, 40 ms/step for real-time
+Saved ... (25.26s of audio)
+real 19.27
+```
+
+Interpretation:
+
+- `10.1s model` is the reported generation loop for the 25.26s audio output.
+- `19.27s wall` is the full shell command duration, including command startup,
+  model loading, warmup, TensorFlow Lite initialization, generation, and file
+  writing.
+- For performance, a persistent loaded model should be evaluated separately;
+  the one-shot CLI wall time is a setup/smoke-test measurement, not the desired
+  live architecture.
+- The current result still passes Phase 0 timing because both values are less
+  than one canonical cycle.
+
+Musical implication:
+
+- If generation can start when the priming pass starts, this timing is good:
+  one 25.26s companion cycle can be ready before the musician cues the jam pass.
+- If generation can only start after the priming pass finishes, the companion
+  would miss the immediate repeat and should enter on a later cycle boundary.
+  That is an acceptable fallback to test later, not the target performer
+  experience.
