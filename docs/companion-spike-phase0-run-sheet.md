@@ -43,10 +43,10 @@ Reject a model output if it:
 
 | Candidate    | Phase 0 role                             | Host target                                            | Conditioning to try                               | Why it is here                                                                       | First verdict |
 | ------------ | ---------------------------------------- | ------------------------------------------------------ | ------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------- |
-| MRT2 small   | Primary Gitair/live-instrument candidate | Local Apple Silicon                                    | Text first, then MIDI/audio if setup is practical | Best match for eventual live local companion; not a clean chord-progression baseline | Pending       |
-| MRT2 base    | Higher-quality MRT2 comparison           | Local if hardware supports it; otherwise offline/cloud | Same as MRT2 small                                | Tests whether quality gain matters enough for Gitair                                 | Pending       |
-| MusiConGen   | Explicit chord + BPM control baseline    | Cloud GPU first                                        | Symbolic chords, BPM, text prompt                 | Best fit for checking whether the canonical chord cycle can be followed directly     | Pending       |
-| ACE-Step 1.5 | Optional fast modern wildcard            | Local or cloud, depending on setup                     | Text, duration, BPM, key/meter if supported       | Fast current model; useful if prompt-only output already feels musically promising   | Optional      |
+| MRT2 small   | Primary Gitair/live-instrument candidate | Local Apple Silicon                                    | Text, then MIDI notes + text                      | Best match for eventual live local companion                                         | Keep          |
+| MRT2 base    | Higher-quality MRT2 comparison           | Local if hardware supports it; otherwise offline/cloud | MIDI notes + text                                | Tests whether quality gain matters enough for Gitair                                 | Reject local  |
+| MusiConGen   | Explicit chord + BPM control baseline    | Cloud GPU first                                        | Symbolic chords, BPM, text prompt                 | Useful external chord-control baseline if later evidence requires it                  | Deferred      |
+| ACE-Step 1.5 | Optional fast modern wildcard            | Local or cloud, depending on setup                     | Text, duration, BPM, key/meter if supported       | Optional alternative if MRT2 fails a later spike phase                               | Deferred      |
 
 ## Shared Prompt Targets
 
@@ -76,8 +76,8 @@ Copy one row per generated output.
 | Run ID     | Date       | Candidate    | Host                | Input conditioning  | Prompt variant | Target duration |                  Gen time | Output duration | Harmony following | Texture fit | Locality effect | Verdict  | Notes                                                                                                                                                                    |
 | ---------- | ---------- | ------------ | ------------------- | ------------------- | -------------- | --------------: | ------------------------: | --------------: | ----------------- | ----------- | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | phase0-001 | 2026-07-08 | MRT2 small   | local Apple Silicon | text                | neutral        |          25.26s | 10.1s model / 19.27s wall |          25.26s | weak partial / no | partial     | n/a             | maybe    | Setup works and generation is fast enough for one cycle. Text-only output was audible but not yet musically convincing; needs stronger conditioning or prompt follow-up. |
-| phase0-002 | TBD        | MusiConGen   | cloud GPU           | chords + BPM + text | neutral        |          25.26s |                       TBD |             TBD | TBD               | TBD         | n/a             | pending  |                                                                                                                                                                          |
-| phase0-003 | TBD        | ACE-Step 1.5 | TBD                 | text + metadata     | neutral        |          25.26s |                       TBD |             TBD | TBD               | TBD         | n/a             | optional |                                                                                                                                                                          |
+| phase0-004 | 2026-07-10 | MRT2 small   | local Apple Silicon | MIDI notes + text   | neutral        |          25.26s | 10.28s model / 12.79s warm-process wall |          25.28s | yes               | yes         | n/a             | keep     | Artifacts initially sounded strange but became more appealing on repeated listening. Keep for play-along evaluation; their artistic value cannot be settled from the isolated WAV. |
+| phase0-005 | 2026-07-10 | MRT2 base    | local Apple Silicon | MIDI notes + text   | neutral        |          25.26s | 32.26s model / 36.27s warm-process wall |          25.28s | yes               | yes         | n/a             | reject   | Similar character and somewhat cleaner than small, but too slow for the local one-cycle timing target. Retain `gitair_phase0-005_mrt2_base_strict_20260710-172533.wav` as an offline quality reference. |
 
 Use these values for judgment fields:
 
@@ -129,3 +129,24 @@ Musical implication:
   would miss the immediate repeat and should enter on a later cycle boundary.
   That is an acceptable fallback to test later, not the target performer
   experience.
+
+For `phase0-004`, the note-conditioned prototype reported:
+
+```text
+model_setup_and_style: 2.48s
+generation: 10.28s
+wall_after_import: 12.79s
+real 70.42
+```
+
+The `10.28s` generation time is the relevant model comparison. The `12.79s`
+warm-process wall time includes model setup, style embedding, generation, and
+file writing after MRT2 imports. The first-run `70.42s` shell wall time also
+includes `uv` environment work, Python startup, and heavy package imports, so it
+is not representative of a persistent loaded companion.
+
+For `phase0-005`, MRT2 base generated the same 25.28-second conditioned cycle
+in `32.26s`, with a `36.27s` warm-process wall time. It sounded similar to MRT2
+small but somewhat cleaner. Because generation exceeded the canonical cycle by
+about seven seconds, base fails the local one-cycle timing gate on this host and
+remains an offline quality reference rather than the v1 companion candidate.

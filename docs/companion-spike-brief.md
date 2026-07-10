@@ -19,6 +19,11 @@ The spike is throwaway by design. Its code does not need to respect the session
 core. Its *findings* feed the next milestone rewrite, the domain language, and
 new ADRs — all owner-ratified after the spike, not before.
 
+Current status (July 10, 2026): Phase 0 is complete. Strict MIDI note
+conditioning made MRT2 small follow the canonical harmony with a fitting sparse
+texture in less than one cycle. MRT2 base sounded similar and somewhat cleaner
+but missed the local timing gate. MRT2 small advances to Phase 1.
+
 ## Decision record
 
 These decisions were made deliberately and should be treated as current
@@ -218,6 +223,14 @@ Kill/keep:
 > Keep a model if it can produce a usable atmospheric texture for the canonical
 > loop's harmony in under one cycle's duration on any acceptable hardware.
 
+Outcome (July 10, 2026): keep MRT2 small. The original plan called for an
+additional one-shot model family, but MusiConGen and ACE-Step are deliberately
+deferred. Explicit MRT2 note conditioning now supplies the harmonic-control
+evidence Phase 0 needed, while the higher-value remaining uncertainty is how the
+companion feels in a cycling and then guitar-in-hand experiment. The deferred
+models remain fallback baselines if MRT2 fails a later phase. The locality
+prompt probe is also deferred because prompt work is not the current question.
+
 ### Phase 1 — Cycle loop bench (no guitar yet)
 
 With the surviving model, build the cycle mechanics as throwaway code:
@@ -225,6 +238,15 @@ With the surviving model, build the cycle mechanics as throwaway code:
 - generate one cycle for the canonical loop's context and loop it seamlessly
 - regenerate the next cycle with an intensity change applied at the boundary
 - listen for seam audibility at the loop point and across the change
+
+Owner decisions to resolve before implementation:
+
+- whether Phase 1 intensity means rendering prominence, generative texture, or
+  a deliberately staged combination
+- whether the seam test compares a raw boundary with a short click-preventing
+  crossfade, and what musical smearing would make that crossfade unacceptable
+- whether v1 replays one generated cycle identically or generates a fresh cycle
+  while preserving the same form and conditioning
 
 Kill/keep:
 
