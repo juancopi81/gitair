@@ -571,7 +571,7 @@ a throwaway real-sound experiment, not a milestone: it answers whether the
 companion direction is musically convincing before more shell code is written.
 
 The spike brief records the current decision record, including the jam-pass
-repetition contract, cycle-quantized generation, the companion-owned clock, the
+repetition contract, cycle-quantized rendering, the companion-owned clock, the
 first companion role, and the two-layer memory model.
 
 Sequencing:

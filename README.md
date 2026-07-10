@@ -46,7 +46,7 @@ Example mappings:
 
 - turn head right → bring the AI companion in
 - turn head left → mute or stop the companion
-- nod up/down → change intensity or density
+- nod up/down → change companion intensity
 
 The goal is for gestures to feel like performance cues, not UI shortcuts.
 

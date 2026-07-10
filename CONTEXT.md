@@ -20,6 +20,14 @@ _Avoid_: Playback, generation phase, performance
 Temporary musical information extracted or entered during the priming pass to steer the AI companion during the jam pass.
 _Avoid_: Recording, sample, training data, memory
 
+**Cycle**:
+The repeating musical form established by the priming pass and followed by the companion during the jam pass.
+_Avoid_: Loop file, clip, generated chunk
+
+**Cycle Boundary**:
+The exact musical transition from the end of one cycle to the start of the next, where queued companion changes take effect.
+_Avoid_: Crossfade window, approximate transition
+
 **Priming Audio Buffer**:
 Temporary in-memory audio captured during the priming pass so a priming source can later derive phrase context from it.
 _Avoid_: Recording, file, permanent memory, training data
@@ -35,6 +43,10 @@ _Avoid_: Model, bandmate, bot, generator
 **Companion State**:
 The current musical availability and steering posture of the companion within a session, including whether it is active or silent and how intense its contribution should be.
 _Avoid_: Model state, backend status
+
+**Intensity**:
+A discrete target for how prominent the companion should be in the jam, independent of the exact rendering technique used to realize it.
+_Avoid_: Density, volume
 
 **Gesture**:
 A physical movement by the musician that Gitair may interpret as a control signal, such as a head turn, nod, or hand cue.

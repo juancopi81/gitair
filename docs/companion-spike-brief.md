@@ -51,11 +51,11 @@ violation of this contract.
 seconds). A cycling companion cannot exist without it. This is the first known
 contract change the spike's findings should shape.
 
-### 3. Cycle-quantized generation
+### 3. Cycle-quantized rendering
 
-Companion audio is (re)generated per cycle. All steering — intensity changes,
-silencing, the entrance itself — takes effect at the next cycle boundary, the
-way a clip launcher quantizes launches.
+Companion audio is prepared and rendered in cycle-length units. All steering —
+intensity changes, silencing, the entrance itself — takes effect at the next
+cycle boundary, the way a clip launcher quantizes launches.
 
 This softens three hard problems at once:
 
@@ -64,8 +64,9 @@ This softens three hard problems at once:
 - transitions happen at form boundaries, which is where the aesthetics doc
   already wanted its thresholds
 
-Identical replay of one generated cycle is the legitimate first implementation
-step, not a compromise.
+Phase 1 and the first jam replay one generated cycle identically. Fresh musical
+generation on every cycle is a later comparison, after seam quality, steering,
+and play-along feel can be judged without model variation confounding them.
 
 ### 4. The companion owns the clock
 
@@ -233,20 +234,84 @@ prompt probe is also deferred because prompt work is not the current question.
 
 ### Phase 1 — Cycle loop bench (no guitar yet)
 
+Record Phase 1 machine checks and listening judgments in
+[companion-spike-phase1-run-sheet.md](companion-spike-phase1-run-sheet.md).
+
 With the surviving model, build the cycle mechanics as throwaway code:
 
-- generate one cycle for the canonical loop's context and loop it seamlessly
-- regenerate the next cycle with an intensity change applied at the boundary
+- take the accepted MRT2-small Cycle audio and repeat it on the exact cycle
+  boundary
+- apply an intensity change at the boundary without changing the cycle audio
 - listen for seam audibility at the loop point and across the change
 
-Owner decisions to resolve before implementation:
+Resolved: Phase 1 intensity means companion prominence and is realized first
+as playback gain applied at a cycle boundary. Density is a separate future
+musical control. MRT2 guidance, temperature, note conditioning, and other
+generation controls do not stand in for intensity in this bench.
 
-- whether Phase 1 intensity means rendering prominence, generative texture, or
-  a deliberately staged combination
-- whether the seam test compares a raw boundary with a short click-preventing
-  crossfade, and what musical smearing would make that crossfade unacceptable
-- whether v1 replays one generated cycle identically or generates a fresh cycle
-  while preserving the same form and conditioning
+Resolved: the cycle boundary preserves the exact cycle duration and harmonic
+transition. The bench listens to the raw boundary first. If it clicks, it may
+compare a short, non-overlapping fade-out/fade-in that does not mix the outgoing
+`Gadd4` with the incoming `C`. This is seam treatment, not a crossfade; audible
+dips or smearing count as evidence rather than reasons to lengthen the blend.
+
+The single initial seam treatment is a `10 ms` half-cosine fade-out on the end
+of the outgoing cycle and a separate `10 ms` half-cosine fade-in on the start of
+the incoming cycle. At the selected `48 kHz` sample rate, each side is `480`
+samples. Raw and treated outputs are both kept for listening; the bench does not
+search longer fade durations automatically.
+
+Resolved: Phase 1 replays the selected companion Cycle audio identically. The
+intensity comparison changes only playback gain. Fresh per-cycle generation is
+deferred until a later comparison so model variation cannot be mistaken for a
+seam or steering effect.
+
+Resolved: Phase 1 maps the existing discrete intensity targets to relative
+playback gain in consistent `3 dB` steps:
+
+| Intensity | Relative gain |
+| --------: | ------------: |
+|         1 |      `-12 dB` |
+|         2 |       `-9 dB` |
+|         3 |       `-6 dB` |
+|         4 |       `-3 dB` |
+|         5 |        `0 dB` |
+
+Level `3` remains the default and leaves headroom; level `1` remains audible;
+silence remains a separate companion state. A queued level change takes effect
+from the start of the next cycle, including any short seam fade-in.
+
+The selected source audio is never normalized. Level `5` preserves its samples
+at `0 dB`; levels `1` through `4` only attenuate them. Derived outputs are not
+peak-normalized or loudness-normalized, so intensity gain and seam treatment
+remain the only rendering variables.
+
+Resolved: Phase 1 consumes the selected `phase0-004` WAV as an explicit input
+artifact. It does not load or invoke MRT2. The bench writes derived listening
+WAVs outside tracked repository paths, keeping Phase 0 generation evidence
+separate from Phase 1 rendering evidence.
+
+Resolved: the bench runs in two stages and produces three deterministic
+listening files only when a seam mode passes:
+
+1. Stage A produces a raw repeat of three intensity-`3` cycles with untreated
+   boundaries (`75.84s`).
+2. Stage A also produces a treated repeat of three intensity-`3` cycles with
+   the `10 ms` seam treatment (`75.84s`).
+3. After the musician selects `raw` or `treated`, Stage B produces an intensity
+   transition of four cycles at levels `3, 3, 4, 4` using that selected seam
+   mode (`101.12s`).
+
+The intensity file provides two stable cycles before and after one legal `3 dB`
+step, so prominence can be judged without model or source-audio variation. If
+the musician selects `neither`, Stage B does not run and Phase 1 moves to
+`rework` or `stop`.
+
+Resolved: untreated playback is the default. A raw seam passes when it is
+inaudible or audible but not jarring. The `10 ms` treatment is selected only
+when the raw seam is jarring and the treatment improves it without introducing
+a noticeable dip or harmonic smear. If both versions are jarring, Phase 1
+fails the seam criterion rather than searching stronger processing silently.
 
 Kill/keep:
 

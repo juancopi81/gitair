@@ -321,7 +321,7 @@ Possible elements:
 - current model
 - current style
 - prompt summary
-- intensity / density
+- companion intensity
 - active modules
 
 #### Gesture state
