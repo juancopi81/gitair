@@ -10,8 +10,8 @@ Phase 1 answers two questions:
 
 > Does the selected companion Cycle repeat without a jarring seam?
 
-> Does one queued intensity step produce an audible, proportionate prominence
-> change at the next Cycle Boundary?
+> Can a queued intensity step produce an audible, proportionate prominence
+> change at the next Cycle Boundary after calibrating its playback gain?
 
 ## Selected Input
 
@@ -34,11 +34,16 @@ directory. The hash identifies the exact source used by the bench.
 | Raw repeat | `3, 3, 3` | `75.84s` | Hear untreated Cycle Boundaries |
 | Treated repeat | `3, 3, 3` | `75.84s` | Compare the fixed `10 ms` seam treatment |
 | Intensity transition | `3, 3, 4, 4` | `101.12s` | Judge one queued `3 dB` step using the selected seam mode |
+| Gain calibration `+4 dB` | `-6, -6, -2, -2 dB` | `101.12s` | Test a moderately stronger change |
+| Gain calibration `+6 dB` | `-6, -6, 0, 0 dB` | `101.12s` | Test a clearly stronger change |
+| Gain calibration `+10 dB` | `-6, -6, +4, +4 dB` | `101.12s` | Test an intentionally aggressive change |
 
 All outputs must preserve the `25.28s` Cycle duration. Derived WAVs stay
 outside tracked repository paths. The source and outputs are not normalized;
 intensity `5` is the unchanged `0 dB` reference and lower levels only attenuate
-it.
+it. The additional gain-calibration outputs are not new Intensity levels. They
+may exceed `0 dB` only when the source has sufficient headroom; the bench
+rejects renders that would clip signed 16-bit samples.
 
 The bench runs in two stages. First generate and judge the raw and treated
 repeats. Generate the intensity transition only after selecting `raw` or
@@ -51,21 +56,27 @@ Fill this after generating and listening to the available outputs. When neither
 seam mode passes, leave the intensity output fields pending.
 
 ```text
-date                  :
-raw_output            :
-raw_duration          :
-treated_output        :
-treated_duration      :
-intensity_output      :
-intensity_duration    :
+date                  : 2026-07-17
+output_directory      : ~/Documents/Magenta/magenta-rt-v2/outputs/gitair-phase1
+raw_output            : gitair_phase0-004_mrt2_small_strict_20260710-171022_stage-a_raw_3-3-3.wav
+raw_duration          : 75.84 seconds
+treated_output        : gitair_phase0-004_mrt2_small_strict_20260710-171022_stage-a_treated_3-3-3.wav
+treated_duration      : 75.84 seconds
+intensity_output      : gitair_phase0-004_mrt2_small_strict_20260710-171022_stage-b_raw_3-3-4-4.wav
+intensity_duration    : 101.12 seconds
+gain_sweep_outputs    : gain-plus-4db.wav, gain-plus-6db.wav, gain-plus-10db.wav
+selected_gain_delta   : 6 dB
 normalization         : none
-raw_seam              : pending
-treated_seam          : pending
-treatment_side_effect : pending
-selected_seam_mode    : pending
-intensity_3_to_4      : pending
-verdict               : pending
-musical_notes         :
+raw_seam              : inaudible
+treated_seam          : inaudible
+treatment_side_effect : none
+selected_seam_mode    : raw
+intensity_3_to_4      : too-subtle
+selected_delta_result : proportionate
+verdict               : keep
+musical_notes         : Raw needs no treatment. The original 3 dB step was too
+                        subtle. A 6 dB change is the first working playback
+                        calibration; validate it again while playing guitar.
 ```
 
 Judgment values:
@@ -73,7 +84,9 @@ Judgment values:
 - `raw_seam`, `treated_seam`: inaudible, audible-not-jarring, jarring
 - `treatment_side_effect`: none, dip, smear
 - `selected_seam_mode`: raw, treated, neither
-- `intensity_3_to_4`: inaudible, proportionate, excessive
+- `intensity_3_to_4`: inaudible, too-subtle, proportionate, excessive
+- `selected_gain_delta`: 4 dB, 6 dB, 10 dB, none
+- `selected_delta_result`: too-subtle, proportionate, excessive
 - `verdict`: keep, rework, stop
 
 ## Decision Rule
@@ -82,7 +95,8 @@ Keep going when:
 
 - at least one seam mode is not jarring
 - the selected seam mode introduces no unacceptable dip or harmonic smear
-- intensity `3 -> 4` is audible and proportionate at the exact Cycle Boundary
+- the selected gain delta is audible and proportionate at the exact Cycle
+  Boundary
 - every output preserves the expected Cycle and total durations
 
 Use `rework` when a specific rendering adjustment could plausibly pass these
